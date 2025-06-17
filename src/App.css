@@ -1,0 +1,73 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+.main-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  margin-top: 1rem;
+}
+
+/* Left PDF viewer */
+.pdf-viewer {
+  flex: 2;
+  position: relative;
+  border: 1px solid #ccc;
+  background: white;
+}
+
+/* Right form sidebar */
+.form-container {
+  flex: 1;
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 1rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  min-width: 300px;
+}
+
+/* Form field layout */
+.dynamic-fields > div {
+  margin-bottom: 1rem;
+}
+
+.dynamic-fields label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.dynamic-fields input,
+.dynamic-fields textarea,
+.dynamic-fields select {
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Button styles shared between form and controls */
+.controls button,
+.controls input[type="number"],
+.form-buttons button {
+  height: 36px;
+  padding: 0 12px;
+  font-size: 14px;
+  line-height: 1;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin: 0 4px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+/* Right-align form buttons */
+.form-buttons {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
