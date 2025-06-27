@@ -4,8 +4,6 @@ import Papa from "papaparse";
 import "pdfjs-dist/build/pdf.worker.entry";
 import "./App.css";
 
-
-
 const categoryTree = {
   Research_and_consultancy_ties: {
     "Consulting_for_FFI_via_the_university": {
@@ -3023,7 +3021,6 @@ const categoryTree = {
   }
 };
 
-
 const categoryColors = {
   "Research_and_consultancy_ties": "red",
   "Campus_Presence": "blue",
@@ -3056,8 +3053,6 @@ const App = () => {
   const [formData, setFormData] = useState({ macro: "", meso: "", fields: {} });
   const [labelPrefix, setLabelPrefix] = useState("");
   const [labelCount, setLabelCount] = useState(1);
-
-
 
   useEffect(() => {
     const loadPDF = async () => {
@@ -3092,10 +3087,18 @@ const App = () => {
     setCurrentPage((prev) => Math.min(prev + 1, numPages));
   };
 
-  const [boxes, setBoxes] = useState([]);
+  const [boxes, setBoxes] = useState(() => {
+    const saved = localStorage.getItem("savedBoxes");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [drawingBox, setDrawingBox] = useState(null);
   const containerRef = useRef(null);
   const startCoords = useRef(null);
+
+  useEffect(() => {
+    localStorage.setItem("savedBoxes", JSON.stringify(boxes));
+  }, [boxes]);
+
 
   const handleMouseDown = (e) => {
     const bounds = containerRef.current.getBoundingClientRect();
@@ -3172,35 +3175,28 @@ const App = () => {
   const handleDownloadCSV = () => {
     const allFieldKeys = getAllCodePrefixedKeys(categoryTree);
 
-    const rows = boxes.map(box => {
-      const { page, x, y, width, height, label } = box;
-      const { macro, meso, code, fields = {}, labelCode } = label;
+    const rows = boxes
+      .filter(box => !box.previous) // ❗ Ignore previous labeler’s boxes
+      .map(box => {
+        const { page, x, y, width, height, label } = box;
+        const { macro, meso, code, fields = {} } = label;
 
-      const row = {
-        page,
-        x,
-        y,
-        width,
-        height,
-        macro,
-        meso,
-        code,
-        labelCode: labelCode || ""  // Include labelCode
-      };
+        const row = {
+          page, x, y, width, height,
+          macro, meso, code
+        };
 
-      // Add all prefixed keys, default to blank
-      allFieldKeys.forEach(prefixedKey => {
-        row[prefixedKey] = "";
+        allFieldKeys.forEach(prefixedKey => {
+          row[prefixedKey] = "";
+        });
+
+        Object.entries(fields).forEach(([key, value]) => {
+          const fullKey = `${code}_${key}`;
+          row[fullKey] = value;
+        });
+
+        return row;
       });
-
-      // Fill in only the fields relevant to this code
-      Object.entries(fields).forEach(([key, value]) => {
-        const fullKey = `${code}_${key}`;
-        row[fullKey] = value;
-      });
-
-      return row;
-    });
 
     const csv = Papa.unparse(rows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -3221,7 +3217,7 @@ const App = () => {
       y: box.y,
       width: box.width,
       height: box.height
-    }));
+    }));eeeeeee
 
     const csv = Papa.unparse(coordRows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -3320,6 +3316,9 @@ return (
 
       <button onClick={handleDownloadCSV}>Download CSV</button>
       <button onClick={handleDownloadCoordsCSV}>Download Coordinates Only</button>
+      <button onClick={() => localStorage.removeItem("savedBoxes")}>
+        Clear Saved Boxes
+      </button>
     </div>
 
 
