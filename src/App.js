@@ -3092,7 +3092,7 @@ const App = () => {
       y: box.y,
       width: box.width,
       height: box.height
-    }));eeeeeee
+    }));
 
     const csv = Papa.unparse(coordRows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -3221,9 +3221,19 @@ return (
               const macro = box.label?.macro;
               const color = isPrevious ? "gray" : (categoryColors[macro] || "black");
 
+              const handleBoxClick = () => {
+                if (isPrevious) {
+                  // Clear previous label info and open form
+                  setPendingBox({ ...box, label: undefined });
+                  setFormData({ macro: "", meso: "", fields: {} });
+                  setShowForm(true);
+                }
+              };
+
               return (
                 <div
                   key={idx}
+                  onClick={handleBoxClick}
                   style={{
                     position: "absolute",
                     left: box.x,
@@ -3231,11 +3241,12 @@ return (
                     width: box.width,
                     height: box.height,
                     border: `2px ${isPrevious ? "dotted" : "solid"} ${color}`,
-                    pointerEvents: "none"
+                    cursor: isPrevious ? "pointer" : "default",
+                    backgroundColor: isPrevious ? "rgba(100,100,100,0.05)" : "transparent"
                   }}
                   title={
                     isPrevious
-                      ? "Previous label"
+                      ? "Click to label this box"
                       : `${box.label.macro} / ${box.label.meso} (${box.label.code})`
                   }
                 />
