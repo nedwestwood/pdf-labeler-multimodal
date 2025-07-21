@@ -3031,6 +3031,7 @@ const App = () => {
     
     const newBox = {
       ...pendingBox,
+      boxNumber: labelCount,
       label: { macro, meso, code, fields, labelCode }
     };
 
@@ -3058,6 +3059,7 @@ const App = () => {
 
         const row = {
           page, x, y, width, height,
+          boxNumber: box.boxNumber,
           macro, meso, code
         };
 
@@ -3091,7 +3093,8 @@ const App = () => {
       x: box.x,
       y: box.y,
       width: box.width,
-      height: box.height
+      height: box.height,
+      boxNumber: box.boxNumber
     }));
 
     const csv = Papa.unparse(coordRows);
@@ -3118,6 +3121,7 @@ const App = () => {
           width: parseFloat(row.width),
           height: parseFloat(row.height),
           page: parseInt(row.page),
+          boxNumber: parseInt(row.boxNumber),
           previous: true // Mark as read-only/previous
         }));
 
@@ -3229,27 +3233,50 @@ return (
                   setShowForm(true);
                 }
               };
+              
 
               return (
-                <div
-                  key={idx}
-                  onClick={handleBoxClick}
-                  style={{
-                    position: "absolute",
-                    left: box.x,
-                    top: box.y,
-                    width: box.width,
-                    height: box.height,
-                    border: `2px ${isPrevious ? "dotted" : "solid"} ${color}`,
-                    cursor: isPrevious ? "pointer" : "default",
-                    backgroundColor: isPrevious ? "rgba(100,100,100,0.05)" : "transparent"
-                  }}
-                  title={
-                    isPrevious
-                      ? "Click to label this box"
-                      : `${box.label.macro} / ${box.label.meso} (${box.label.code})`
-                  }
-                />
+                <React.Fragment key={idx}>
+                  {/* The bounding box */}
+                  <div
+                    onClick={handleBoxClick}
+                    style={{
+                      position: "absolute",
+                      left: box.x,
+                      top: box.y,
+                      width: box.width,
+                      height: box.height,
+                      border: `2px ${isPrevious ? "dotted" : "solid"} ${color}`,
+                      cursor: isPrevious ? "pointer" : "default",
+                      backgroundColor: isPrevious ? "rgba(100,100,100,0.05)" : "transparent"
+                    }}
+                    title={
+                      isPrevious
+                        ? "Click to label this box"
+                        : `${box.label.macro} / ${box.label.meso} (${box.label.code})`
+                    }
+                  />
+
+                  {/* Box number label */}
+                  {box.boxNumber && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: box.x + box.width - 14,
+                        top: box.y - 2,
+                        fontSize: "12px",
+                        background: "white",
+                        color: "black",
+                        padding: "0 3px",
+                        borderRadius: "2px",
+                        border: "1px solid #aaa",
+                        pointerEvents: "none"
+                      }}
+                    >
+                      {box.boxNumber}
+                    </div>
+                  )}
+                </React.Fragment>
               );
             })}
 
