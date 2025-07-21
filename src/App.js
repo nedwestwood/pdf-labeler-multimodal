@@ -5,14 +5,20 @@ import "pdfjs-dist/build/pdf.worker.entry";
 import "./App.css";
 
 const categoryTree = {
-  research_and_consultancy_ties: {
-    "consulting_for_ffi_via_the_university": {
-      "code": "CF1",
+  research_consultancy_ties: {
+    "consulting_for_ffi": {
+      "code": "CF1_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -30,28 +36,33 @@ const categoryTree = {
           "type": "text"
         },
         {
+          "label": "As the result of a university contract?",
+          "key": "as_the_result_of_a_university_contract",
+          "type": "checkbox"
+        },
+        {
           "label": "Title at university?",
           "key": "title_at_university",
           "type": "text"
         },
         {
           "label": "Start date at university (yyyy)?",
-          "key": "start_date_at_university",
+          "key": "start_date_at_university_yyyy",
           "type": "text"
         },
         {
           "label": "End date at university (yyyy)?",
-          "key": "end_date_at_university",
+          "key": "end_date_at_university_yyyy",
           "type": "text"
         },
         {
           "label": "Start date at FFI (yyyy)?",
-          "key": "start_date_at_ffi",
+          "key": "start_date_at_ffi_yyyy",
           "type": "text"
         },
         {
           "label": "End date at FFI (yyyy)?",
-          "key": "end_date_at_ffi",
+          "key": "end_date_at_ffi_yyyy",
           "type": "text"
         },
         {
@@ -81,23 +92,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "research_collaboration": {
-      "code": "CF2",
+      "code": "CF2_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -116,12 +133,12 @@ const categoryTree = {
         },
         {
           "label": "Start date at FFI (yyyy)?",
-          "key": "start_date_at_ffi",
+          "key": "start_date_at_ffi_yyyy",
           "type": "text"
         },
         {
           "label": "End date at FFI (yyyy)?",
-          "key": "end_date_at_ffi",
+          "key": "end_date_at_ffi_yyyy",
           "type": "text"
         },
         {
@@ -136,17 +153,27 @@ const categoryTree = {
         },
         {
           "label": "Start date at university (yyyy)?",
-          "key": "start_date_at_university",
+          "key": "start_date_at_university_yyyy",
           "type": "text"
         },
         {
           "label": "End date at university (yyyy)?",
-          "key": "end_date_at_university",
+          "key": "end_date_at_university_yyyy",
           "type": "text"
+        },
+        {
+          "label": "Purpose of research funding (project, lab, center etc.)?",
+          "key": "purpose_of_research_funding_project_lab_center_etc",
+          "type": "textarea"
         },
         {
           "label": "Title of research project?",
           "key": "title_of_research_project",
+          "type": "text"
+        },
+        {
+          "label": "Name of research center?",
+          "key": "name_of_research_center",
           "type": "text"
         },
         {
@@ -166,12 +193,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -191,23 +218,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "unspecified_ffi_funding_for_research": {
-      "code": "CF3",
+      "code": "CF3_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -226,12 +259,12 @@ const categoryTree = {
         },
         {
           "label": "Start date at FFI (yyyy)?",
-          "key": "start_date_at_ffi",
+          "key": "start_date_at_ffi_yyyy",
           "type": "text"
         },
         {
           "label": "End date at FFI (yyyy)?",
-          "key": "end_date_at_ffi",
+          "key": "end_date_at_ffi_yyyy",
           "type": "text"
         },
         {
@@ -246,17 +279,27 @@ const categoryTree = {
         },
         {
           "label": "Start date at university (yyyy)?",
-          "key": "start_date_at_university",
+          "key": "start_date_at_university_yyyy",
           "type": "text"
         },
         {
           "label": "End date at university (yyyy)?",
-          "key": "end_date_at_university",
+          "key": "end_date_at_university_yyyy",
           "type": "text"
+        },
+        {
+          "label": "Purpose of research funding (project, lab, center etc.)?",
+          "key": "purpose_of_research_funding_project_lab_center_etc",
+          "type": "textarea"
         },
         {
           "label": "Title of research project?",
           "key": "title_of_research_project",
+          "type": "text"
+        },
+        {
+          "label": "Name of research center?",
+          "key": "name_of_research_center",
           "type": "text"
         },
         {
@@ -276,12 +319,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -301,23 +344,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "membership_in_ffi_linked_research_consortia": {
-      "code": "CF4",
+      "code": "CF4_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -336,12 +385,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -381,23 +430,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "buying_renting_or_obtaining_data_or_equipment_from_an_ffi_party": {
-      "code": "CF5",
+      "code": "CF5_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -426,12 +481,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -451,23 +506,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "other_research_ties": {
-      "code": "CF6",
+      "code": "CF6_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -481,12 +542,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -516,12 +577,12 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
@@ -529,7 +590,7 @@ const categoryTree = {
   },
   campus_presence: {
     "ffi_advertisements": {
-      "code": "CF7",
+      "code": "CF7_1",
       "form": [
         {
           "label": "Which FFI?",
@@ -537,12 +598,18 @@ const categoryTree = {
           "type": "text"
         },
         {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
+        },
+        {
           "label": "Which university?",
           "key": "which_university",
           "type": "text"
         },
         {
-          "label": "Title/Ad Description?",
+          "label": "Title/Ad Description",
           "key": "title_ad_description",
           "type": "text"
         },
@@ -558,12 +625,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -593,23 +660,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "ffi_sponsored_sports_teams": {
-      "code": "CF8",
+      "code": "CF8_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -638,12 +711,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -663,23 +736,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "ffi_sponsored_student_organizations": {
-      "code": "CF9",
+      "code": "CF9_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -703,12 +782,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -728,23 +807,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "ffi_involved_panels_lectures_speeches": {
-      "code": "CF10",
+      "code": "CF10_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -763,12 +848,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -808,23 +893,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "ffi_sponsored_events_and_excursions": {
-      "code": "CF11",
+      "code": "CF11_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -843,12 +934,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -888,18 +979,18 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
-    "buildings_named_after_ffi": {
-      "code": "CF12",
+    "buildings": {
+      "code": "CF12_1",
       "form": [
         {
           "label": "Which FFI?",
@@ -907,8 +998,19 @@ const categoryTree = {
           "type": "text"
         },
         {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
+        },
+        {
           "label": "Which university?",
           "key": "which_university",
+          "type": "text"
+        },
+        {
+          "label": "Type of Building?",
+          "key": "type_of_building",
           "type": "text"
         },
         {
@@ -928,12 +1030,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -953,23 +1055,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "ffi_office_space_on_campus": {
-      "code": "CF13",
+      "code": "CF13_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -979,6 +1087,11 @@ const categoryTree = {
         {
           "label": "How much office space?",
           "key": "how_much_office_space",
+          "type": "text"
+        },
+        {
+          "label": "Department housing office space?",
+          "key": "department_housing_office_space",
           "type": "text"
         },
         {
@@ -993,12 +1106,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1018,23 +1131,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "ffi_memorabilia": {
-      "code": "CF14",
+      "code": "CF14_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -1043,17 +1162,17 @@ const categoryTree = {
         },
         {
           "label": "Item(s) given?",
-          "key": "item_given",
-          "type": "text"
+          "key": "item_s_given",
+          "type": "textarea"
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1083,23 +1202,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "ffi_sponsored_awards_and_prizes": {
-      "code": "CF15",
+      "code": "CF15_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -1123,12 +1248,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1148,18 +1273,18 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "named_professorship_chair": {
-      "code": "CF16",
+      "code": "CF16_1",
       "form": [
         {
           "label": "Which FFI?",
@@ -1167,13 +1292,19 @@ const categoryTree = {
           "type": "text"
         },
         {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
+        },
+        {
           "label": "Which university?",
           "key": "which_university",
           "type": "text"
         },
         {
-          "label": "Title of funded professorship?",
-          "key": "title_of_funded_professorship",
+          "label": "Title of professorship?",
+          "key": "title_of_professorship",
           "type": "text"
         },
         {
@@ -1198,17 +1329,17 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
-          "label": "Other information?",
-          "key": "other_information",
+          "label": "Purpose of research funding (project, lab, center etc.)?\n*text input box*\n\nQ: Other information?",
+          "key": "purpose_of_research_funding_project_lab_center_etc_text_input_box_q_other_information",
           "type": "textarea"
         },
         {
@@ -1223,23 +1354,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "other_campus_presence": {
-      "code": "CF17",
+      "code": "CF17_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -1253,12 +1390,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1288,12 +1425,12 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
@@ -1301,7 +1438,7 @@ const categoryTree = {
   },
   educational_involvement: {
     "curricula_advising": {
-      "code": "CF18",
+      "code": "CF18_1",
       "form": [
         {
           "label": "Which FFI?",
@@ -1309,13 +1446,19 @@ const categoryTree = {
           "type": "text"
         },
         {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
+        },
+        {
           "label": "Which university?",
           "key": "which_university",
           "type": "text"
         },
         {
-          "label": "Level of curricula (undergrad, grad etc.)?",
-          "key": "level_of_curricula",
+          "label": "Level of curricula (undergrad, grad etc.)",
+          "key": "level_of_curricula_undergrad_grad_etc",
           "type": "text"
         },
         {
@@ -1325,12 +1468,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1350,23 +1493,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "ffi_lectures": {
-      "code": "CF19",
+      "code": "CF19_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -1385,12 +1534,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1420,23 +1569,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "ffi_field_trips_or_workshops": {
-      "code": "CF20",
+      "code": "CF20_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -1455,12 +1610,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1490,23 +1645,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "other_educational_involvement": {
-      "code": "CF21",
+      "code": "CF21_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -1520,12 +1681,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1555,25 +1716,31 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     }
   },
-  career_and_recruitment_engagements: {
+  career_recruitment_engagements: {
     "ffi_presence_at_career_events": {
-      "code": "CF22",
+      "code": "CF22_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -1592,12 +1759,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1627,23 +1794,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "internships_and_jobs": {
-      "code": "CF23",
+      "code": "CF23_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -1662,22 +1835,22 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
           "label": "Remuneration (enter \u201cunknown\u201d if not specified, \u201cunpaid\u201d if internship is unpaid, otherwise enter remuneration amount)?",
-          "key": "remuneration",
+          "key": "remuneration_enter_unknown_if_not_specified_unpaid_if_internship_is_unpaid_otherwise_enter_remuneration_amount",
           "type": "text"
         },
         {
           "label": "Currency of remuneration (if applicable)?",
-          "key": "currency_of_remuneration",
+          "key": "currency_of_remuneration_if_applicable",
           "type": "text"
         },
         {
@@ -1697,23 +1870,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "ffi_sponsored_fellowships_scholarships_and_other_awards": {
-      "code": "CF24",
+      "code": "CF24_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -1736,13 +1915,18 @@ const categoryTree = {
           "type": "text"
         },
         {
+          "label": "Level of curricula (undergrad, grad etc.)",
+          "key": "level_of_curricula_undergrad_grad_etc",
+          "type": "text"
+        },
+        {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1762,18 +1946,18 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "career_advising": {
-      "code": "CF25",
+      "code": "CF25_1",
       "form": [
         {
           "label": "Which FFI?",
@@ -1781,13 +1965,19 @@ const categoryTree = {
           "type": "text"
         },
         {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
+        },
+        {
           "label": "Which university?",
           "key": "which_university",
           "type": "text"
         },
         {
-          "label": "Level of student being advised (undergrad, grad etc.)?",
-          "key": "level_of_student_being_advised",
+          "label": "Level of student being advised (undergrad, grad etc.)",
+          "key": "level_of_student_being_advised_undergrad_grad_etc",
           "type": "text"
         },
         {
@@ -1807,12 +1997,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1832,23 +2022,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "networking_opportunities": {
-      "code": "CF26",
+      "code": "CF26_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -1867,12 +2063,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1902,23 +2098,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "joint_trainings_and_workshops": {
-      "code": "CF27",
+      "code": "CF27_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -1937,12 +2139,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -1972,23 +2174,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
-    "other_career_and_recruitment_engagements": {
-      "code": "CF28",
+    "other_career_recruitment_engagements": {
+      "code": "CF28_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -2007,12 +2215,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -2032,12 +2240,12 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
@@ -2045,7 +2253,7 @@ const categoryTree = {
   },
   purely_financial_relationship: {
     "gift_matching_programs": {
-      "code": "CF29",
+      "code": "CF29_1",
       "form": [
         {
           "label": "Which FFI?",
@@ -2053,13 +2261,19 @@ const categoryTree = {
           "type": "text"
         },
         {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
+        },
+        {
           "label": "Which university?",
           "key": "which_university",
           "type": "text"
         },
         {
-          "label": "How many individual gifts/donations were matched?",
-          "key": "how_many_individual_gifts_donations_were_matched",
+          "label": "Title/description?\n\nQ: How many individual gifts/donations were matched?",
+          "key": "title_description_q_how_many_individual_gifts_donations_were_matched",
           "type": "text"
         },
         {
@@ -2074,12 +2288,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -2099,23 +2313,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "uni_endowment_invested_in_ffi": {
-      "code": "CF30",
+      "code": "CF30_1",
       "form": [
         {
           "label": "FFI beneficiary of investment?",
           "key": "ffi_beneficiary_of_investment",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -2134,12 +2354,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -2159,18 +2379,18 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "uni_land_leasing_for_fracking_drilling_or_exploration": {
-      "code": "CF31",
+      "code": "CF31_1",
       "form": [
         {
           "label": "Which FFI?",
@@ -2178,13 +2398,19 @@ const categoryTree = {
           "type": "text"
         },
         {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
+        },
+        {
           "label": "Which university?",
           "key": "which_university",
           "type": "text"
         },
         {
-          "label": "Land usage (Fracking, exploration etc.)?",
-          "key": "land_usage",
+          "label": "Land usage (Fracking, exploration etc.)",
+          "key": "land_usage_fracking_exploration_etc",
           "type": "text"
         },
         {
@@ -2209,12 +2435,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -2234,23 +2460,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "donations_with_unspecified_interests_obligations_or_benefits": {
-      "code": "CF32",
+      "code": "CF32_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -2274,7 +2506,7 @@ const categoryTree = {
         },
         {
           "label": "Donation date (yyyy)?",
-          "key": "donation_date",
+          "key": "donation_date_yyyy",
           "type": "text"
         },
         {
@@ -2294,23 +2526,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "other_financial_relationship": {
-      "code": "CF33",
+      "code": "CF33_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -2334,12 +2572,12 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
@@ -2359,12 +2597,12 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
@@ -2372,12 +2610,18 @@ const categoryTree = {
   },
   high_level_institutional_agreements: {
     "formal_contracts_between_ffi_and_uni": {
-      "code": "CF34",
+      "code": "CF34_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -2391,17 +2635,17 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
           "label": "Signed date (mm-dd-yyyy or mm-yyyy or yyyy)?",
-          "key": "signed_date",
+          "key": "signed_date_mm_dd_yyyy_or_mm_yyyy_or_yyyy",
           "type": "text"
         },
         {
@@ -2421,23 +2665,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "informal_understanding_between_ffi_and_uni": {
-      "code": "CF34",
+      "code": "CF34_2",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -2451,17 +2701,17 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
           "label": "Signed date (mm-dd-yyyy or mm-yyyy or yyyy)?",
-          "key": "signed_date",
+          "key": "signed_date_mm_dd_yyyy_or_mm_yyyy_or_yyyy",
           "type": "text"
         },
         {
@@ -2481,23 +2731,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "joint_ventures": {
-      "code": "CF34",
+      "code": "CF34_3",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -2511,17 +2767,17 @@ const categoryTree = {
         },
         {
           "label": "Start date (yyyy)?",
-          "key": "start_date",
+          "key": "start_date_yyyy",
           "type": "text"
         },
         {
           "label": "End date (yyyy)?",
-          "key": "end_date",
+          "key": "end_date_yyyy",
           "type": "text"
         },
         {
           "label": "Signed date (mm-dd-yyyy or mm-yyyy or yyyy)?",
-          "key": "signed_date",
+          "key": "signed_date_mm_dd_yyyy_or_mm_yyyy_or_yyyy",
           "type": "text"
         },
         {
@@ -2541,12 +2797,12 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
@@ -2554,12 +2810,18 @@ const categoryTree = {
   },
   personnel_overlap: {
     "former_ffi_personnel_now_affiliated_with_uni": {
-      "code": "CF35",
+      "code": "CF35_1",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -2578,12 +2840,12 @@ const categoryTree = {
         },
         {
           "label": "Start date at university (yyyy)?",
-          "key": "start_date_at_university",
+          "key": "start_date_at_university_yyyy",
           "type": "text"
         },
         {
           "label": "End date at university (yyyy)?",
-          "key": "end_date_at_university",
+          "key": "end_date_at_university_yyyy",
           "type": "text"
         },
         {
@@ -2593,12 +2855,12 @@ const categoryTree = {
         },
         {
           "label": "Start date at FFI (yyyy)?",
-          "key": "start_date_at_ffi",
+          "key": "start_date_at_ffi_yyyy",
           "type": "text"
         },
         {
           "label": "End date at FFI (yyyy)?",
-          "key": "end_date_at_ffi",
+          "key": "end_date_at_ffi_yyyy",
           "type": "text"
         },
         {
@@ -2628,23 +2890,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "former_uni_personnel_now_affiliated_with_ffi": {
-      "code": "CF35",
+      "code": "CF35_2",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -2663,12 +2931,12 @@ const categoryTree = {
         },
         {
           "label": "Start date at university (yyyy)?",
-          "key": "start_date_at_university",
+          "key": "start_date_at_university_yyyy",
           "type": "text"
         },
         {
           "label": "End date at university (yyyy)?",
-          "key": "end_date_at_university",
+          "key": "end_date_at_university_yyyy",
           "type": "text"
         },
         {
@@ -2678,12 +2946,12 @@ const categoryTree = {
         },
         {
           "label": "Start date at FFI (yyyy)?",
-          "key": "start_date_at_ffi",
+          "key": "start_date_at_ffi_yyyy",
           "type": "text"
         },
         {
           "label": "End date at FFI (yyyy)?",
-          "key": "end_date_at_ffi",
+          "key": "end_date_at_ffi_yyyy",
           "type": "text"
         },
         {
@@ -2713,23 +2981,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "concurrently_affiliated_with_both_ffi_and_uni": {
-      "code": "CF35",
+      "code": "CF35_3",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -2748,12 +3022,12 @@ const categoryTree = {
         },
         {
           "label": "Start date at university (yyyy)?",
-          "key": "start_date_at_university",
+          "key": "start_date_at_university_yyyy",
           "type": "text"
         },
         {
           "label": "End date at university (yyyy)?",
-          "key": "end_date_at_university",
+          "key": "end_date_at_university_yyyy",
           "type": "text"
         },
         {
@@ -2763,12 +3037,12 @@ const categoryTree = {
         },
         {
           "label": "Start date at FFI (yyyy)?",
-          "key": "start_date_at_ffi",
+          "key": "start_date_at_ffi_yyyy",
           "type": "text"
         },
         {
           "label": "End date at FFI (yyyy)?",
-          "key": "end_date_at_ffi",
+          "key": "end_date_at_ffi_yyyy",
           "type": "text"
         },
         {
@@ -2798,23 +3072,29 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     },
     "other_personnel_overlap": {
-      "code": "CF35",
+      "code": "CF35_4",
       "form": [
         {
           "label": "Which FFI?",
           "key": "which_ffi",
           "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
         },
         {
           "label": "Which university?",
@@ -2833,12 +3113,12 @@ const categoryTree = {
         },
         {
           "label": "Start date at university (yyyy)?",
-          "key": "start_date_at_university",
+          "key": "start_date_at_university_yyyy",
           "type": "text"
         },
         {
           "label": "End date at university (yyyy)?",
-          "key": "end_date_at_university",
+          "key": "end_date_at_university_yyyy",
           "type": "text"
         },
         {
@@ -2848,12 +3128,12 @@ const categoryTree = {
         },
         {
           "label": "Start date at FFI (yyyy)?",
-          "key": "start_date_at_ffi",
+          "key": "start_date_at_ffi_yyyy",
           "type": "text"
         },
         {
           "label": "End date at FFI (yyyy)?",
-          "key": "end_date_at_ffi",
+          "key": "end_date_at_ffi_yyyy",
           "type": "text"
         },
         {
@@ -2883,27 +3163,81 @@ const categoryTree = {
         },
         {
           "label": "Source(s) other than Survey Report?",
-          "key": "source_other_than_survey_report",
+          "key": "source_s_other_than_survey_report",
           "type": "text"
         },
         {
           "label": "Evidence/Quote(s) from sources other than Survey Report?",
-          "key": "evidence_quote_from_sources_other_than_survey_report",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
+          "type": "textarea"
+        }
+      ]
+    }
+  },
+  other: {
+    "other": {
+      "code": "CF36",
+      "form": [
+        {
+          "label": "Which FFI?",
+          "key": "which_ffi",
+          "type": "text"
+        },
+        {
+          "label": "Industry group?",
+          "key": "industry_group",
+          "type": "select",
+          "options": ["1", "2", "3"]
+        },
+        {
+          "label": "Which university?",
+          "key": "which_university",
+          "type": "text"
+        },
+        {
+          "label": "Description of tie?",
+          "key": "description_of_tie",
+          "type": "textarea"
+        },
+        {
+          "label": "Other information?",
+          "key": "other_information",
+          "type": "textarea"
+        },
+        {
+          "label": "Apparent influence?",
+          "key": "apparent_influence",
+          "type": "text"
+        },
+        {
+          "label": "Noteworthy?",
+          "key": "noteworthy",
+          "type": "checkbox"
+        },
+        {
+          "label": "Source(s) other than Survey Report?",
+          "key": "source_s_other_than_survey_report",
+          "type": "text"
+        },
+        {
+          "label": "Evidence/Quote(s) from sources other than Survey Report?",
+          "key": "evidence_quote_s_from_sources_other_than_survey_report",
           "type": "textarea"
         }
       ]
     }
   }
-};
+}
 
 const categoryColors = {
-  "Research_and_consultancy_ties": "red",
-  "Campus_Presence": "blue",
-  "Educational_Ties": "green",
-  "Career_and_recruitment_engagements": "orange",
-  "Purely_Financial_Relationship": "purple",
-  "High_Level_Institutional_Agreements": "pink",
-  "Personnel_Overlap": "yellow"
+  "research_consultancy_ties": "red",
+  "campus_presence": "blue",
+  "educational_involvement": "green",
+  "career_recruitment_engagements": "orange",
+  "purely_financial_relationship": "purple",
+  "high_level_institutional_agreements": "pink",
+  "personnel_overlap": "yellow",
+  "other": "grey"
 };
 
 const getAllCodePrefixedKeys = (categoryTree) => {
@@ -3333,11 +3667,23 @@ return (
                         onChange={e => updateField(f.key, e.target.checked)}
                       />
                     ) : (
-                      <input
-                        type={f.type}
-                        value={formData.fields[f.key] || ''}
-                        onChange={e => updateField(f.key, e.target.value)}
-                      />
+                      f.type === 'select' ? (
+                        <select
+                          value={formData.fields[f.key] || ''}
+                          onChange={e => updateField(f.key, e.target.value)}
+                        >
+                          <option value="">Select...</option>
+                          {f.options.map((opt, idx) => (
+                            <option key={idx} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type={f.type}
+                          value={formData.fields[f.key] || ''}
+                          onChange={e => updateField(f.key, e.target.value)}
+                        />
+                      )
                     )}
                   </label>
                 </div>
