@@ -2629,6 +2629,11 @@ const categoryTree = {
           "type": "text"
         },
         {
+          "label": "Contains details on other ties?",
+          "key": "other_ties",
+          "type": "text"
+        },
+        {
           "label": "Title/description?",
           "key": "title_description",
           "type": "text"
@@ -2695,6 +2700,11 @@ const categoryTree = {
           "type": "text"
         },
         {
+          "label": "Contains details on other ties?",
+          "key": "other_ties",
+          "type": "text"
+        },
+        {
           "label": "Title/description?",
           "key": "title_description",
           "type": "text"
@@ -2758,6 +2768,11 @@ const categoryTree = {
         {
           "label": "Which university?",
           "key": "which_university",
+          "type": "text"
+        },
+        {
+          "label": "Contains details on other ties?",
+          "key": "other_ties",
           "type": "text"
         },
         {
