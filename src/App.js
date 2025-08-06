@@ -1494,7 +1494,7 @@ const categoryTree = {
           {
             "label": "Level of curricula (undergrad, grad etc.)?",
             "key": "level_of_curricula",
-            "type": "select"
+            "type": "text"
           },
           {
             "label": "Department?",
@@ -1964,7 +1964,7 @@ const categoryTree = {
           {
             "label": "Level of curricula (undergrad, grad etc.)?",
             "key": "level_of_curricula",
-            "type": "select"
+            "type": "text"
           },
           {
             "label": "Start date (yyyy)?",
@@ -2027,7 +2027,7 @@ const categoryTree = {
           {
             "label": "Level of student being advised (undergrad, grad etc.)?",
             "key": "level_of_student_being_advised",
-            "type": "select"
+            "type": "text"
           },
           {
             "label": "Department?",
@@ -2945,7 +2945,7 @@ const categoryTree = {
           {
             "label": "Remuneration currency?",
             "key": "remuneration_currency",
-            "type": "select"
+            "type": "text"
           },
           {
             "label": "Other information?",
