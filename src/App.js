@@ -1,3330 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import config from "./config";
+const { categoryTree, categoryColors } = config;
+
 import { getDocument } from "pdfjs-dist";
 import Papa from "papaparse";
 import "pdfjs-dist/build/pdf.worker.entry";
 import "./App.css";
 
-const categoryTree = {
-  research_consultancy_ties: {
-    "consulting_for_ffi": {
-      "none": {
-        "code": "CF1_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Name of uni personnel?",
-            "key": "name_of_uni_personnel",
-            "type": "text"
-          },
-          {
-            "label": "Type of consultancy?",
-            "key": "type_of_consultancy",
-            "type": "text"
-          },
-          {
-            "label": "As the result of a university contract?",
-            "key": "as_the_result_of_a_university_contract",
-            "type": "checkbox"
-          },
-          {
-            "label": "Title at university?",
-            "key": "title_at_university",
-            "type": "text"
-          },
-          {
-            "label": "Start date at university (yyyy)?",
-            "key": "start_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at university (yyyy)?",
-            "key": "end_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Start date at FFI (yyyy)?",
-            "key": "start_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at FFI (yyyy)?",
-            "key": "end_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Remuneration?",
-            "key": "remuneration",
-            "type": "text"
-          },
-          {
-            "label": "Remuneration currency?",
-            "key": "remuneration_currency",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quotes_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "research_collaboration": {
-      "none": {
-        "code": "CF2_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi_",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Name of FFI personnel?",
-            "key": "name_of_ffi_personnel",
-            "type": "text"
-          },
-          {
-            "label": "Title at FFI?",
-            "key": "title_at_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Start date at FFI (yyyy)?",
-            "key": "start_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at FFI (yyyy)?",
-            "key": "end_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Name of uni personnel?",
-            "key": "name_of_uni_personnel",
-            "type": "text"
-          },
-          {
-            "label": "Title at university?",
-            "key": "title_at_university",
-            "type": "text"
-          },
-          {
-            "label": "Start date at university (yyyy)?",
-            "key": "start_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at university (yyyy)?",
-            "key": "end_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Purpose of research funding (project, lab, center etc.)?",
-            "key": "purpose_of_research_funding_project_lab_center",
-            "type": "textarea"
-          },
-          {
-            "label": "Title of research project?",
-            "key": "title_of_research_project",
-            "type": "text"
-          },
-          {
-            "label": "Name of research center?",
-            "key": "name_of_research_center",
-            "type": "text"
-          },
-          {
-            "label": "Department/academic discipline?",
-            "key": "department_academic_discipline",
-            "type": "text"
-          },
-          {
-            "label": "Amount funded?",
-            "key": "amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quotes_other_than_survey_report_",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "unspecified_ffi_funding_for_research": {
-      "none": {
-        "code": "CF3_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Name of FFI personnel?",
-            "key": "name_of_ffi_personnel",
-            "type": "text"
-          },
-          {
-            "label": "Title at FFI?",
-            "key": "title_at_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Start date at FFI (yyyy)?",
-            "key": "start_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at FFI (yyyy)?",
-            "key": "end_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Name of uni personnel?",
-            "key": "name_of_uni_personnel",
-            "type": "text"
-          },
-          {
-            "label": "Title at university?",
-            "key": "title_at_university",
-            "type": "text"
-          },
-          {
-            "label": "Start date at university (yyyy)?",
-            "key": "start_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at university (yyyy)?",
-            "key": "end_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Purpose of research funding (project, lab, center etc.)?",
-            "key": "purpose_of_research_funding_project_lab_center_etc",
-            "type": "textarea"
-          },
-          {
-            "label": "Title of research project?",
-            "key": "title_of_research_project",
-            "type": "text"
-          },
-          {
-            "label": "Name of research center?",
-            "key": "name_of_research_center",
-            "type": "text"
-          },
-          {
-            "label": "Department/academic discipline?",
-            "key": "department_academic_discipline",
-            "type": "text"
-          },
-          {
-            "label": "Amount funded?",
-            "key": "amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "membership_ffi_linked_research_consortia": {
-      "none": {
-        "code": "CF4_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Name of consortia?",
-            "key": "name_of_consortia",
-            "type": "text"
-          },
-          {
-            "label": "Event Location?",
-            "key": "event_location",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Number of FFI personnel attending?",
-            "key": "number_of_ffi_personnel_attending",
-            "type": "text"
-          },
-          {
-            "label": "Names of FFI personnel attending?",
-            "key": "names_of_ffi_personnel_attending",
-            "type": "textarea"
-          },
-          {
-            "label": "Amount funded?",
-            "key": "amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report_",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "equipment_from_ffi_party": {
-      "none": {
-        "code": "CF5_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Description of equipment/data?",
-            "key": "description_of_equipment_data",
-            "type": "text"
-          },
-          {
-            "label": "Method of obtainment?",
-            "key": "method_of_obtainment",
-            "type": "text"
-          },
-          {
-            "label": "Purchase price?",
-            "key": "purchase_price",
-            "type": "text"
-          },
-          {
-            "label": "urchase currency?",
-            "key": "urchase_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_s_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "other_research_ties": {
-      "none": {
-        "code": "CF6_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title/Description of research tie?",
-            "key": "title_description_of_research_tie",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Amount funded?",
-            "key": "amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Other relevant information?",
-            "key": "other_relevant_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_s_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    }
-  },
-  campus_presence: {
-    "ffi_advertisements": {
-      "none": {
-        "code": "CF7_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title/Ad Description?",
-            "key": "title_ad_description",
-            "type": "text"
-          },
-          {
-            "label": "Amount funded?",
-            "key": "amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Link to image of ad?",
-            "key": "link_to_image_of_ad",
-            "type": "text"
-          },
-          {
-            "label": "Ad location on campus?",
-            "key": "ad_location_on_campus",
-            "type": "text"
-          },
-          {
-            "label": "Other relevant information?",
-            "key": "other_relevant_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "ffi_sponsored_sports_teams": {
-      "none": {
-        "code": "CF8_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Which sport?",
-            "key": "which_sport",
-            "type": "text"
-          },
-          {
-            "label": "Team Name?",
-            "key": "team_name",
-            "type": "text"
-          },
-          {
-            "label": "Amount funded?",
-            "key": "amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other relevant information?",
-            "key": "other_relevant_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "ffi_sponsored_student_organizations": {
-      "none": {
-        "code": "CF9_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Name of student organization?",
-            "key": "name_of_student_organization",
-            "type": "text"
-          },
-          {
-            "label": "Amount funded?",
-            "key": "amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other relevant information?",
-            "key": "other_relevant_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report_",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "ffi_involved_panels_lectures_speeches": {
-      "none": {
-        "code": "CF10_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title of Event?",
-            "key": "title_of_event",
-            "type": "text"
-          },
-          {
-            "label": "Event Location?",
-            "key": "event_location",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Number of FFI personnel attending?",
-            "key": "number_of_ffi_personnel_attending",
-            "type": "text"
-          },
-          {
-            "label": "Names of FFI personnel attending?",
-            "key": "names_of_ffi_personnel_attending",
-            "type": "textarea"
-          },
-          {
-            "label": "Amount funded?",
-            "key": "amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "ffi_sponsored_events_and_excursions": {
-      "none": {
-        "code": "CF11_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title of Event?",
-            "key": "title_of_event",
-            "type": "text"
-          },
-          {
-            "label": "Event Location?",
-            "key": "event_location",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Number of FFI personnel attending?",
-            "key": "number_of_ffi_personnel_attending",
-            "type": "text"
-          },
-          {
-            "label": "Names of FFI personnel attending?",
-            "key": "names_of_ffi_personnel_attending",
-            "type": "textarea"
-          },
-          {
-            "label": "Amount funded?",
-            "key": "amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report_",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "buildings": {
-      "none": {
-        "code": "CF12_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Type of Building?",
-            "key": "type_of_building",
-            "type": "text"
-          },
-          {
-            "label": "Name of Building?",
-            "key": "name_of_building",
-            "type": "text"
-          },
-          {
-            "label": "Amount donated?",
-            "key": "amount_donated",
-            "type": "text"
-          },
-          {
-            "label": "Donation currency?",
-            "key": "donation_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "ffi_office_space_on_campus": {
-      "none": {
-        "code": "CF13_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "How much office space?",
-            "key": "how_much_office_space",
-            "type": "text"
-          },
-          {
-            "label": "Department housing office space?",
-            "key": "department_housing_office_space",
-            "type": "text"
-          },
-          {
-            "label": "Amount donated?",
-            "key": "amount_donated",
-            "type": "text"
-          },
-          {
-            "label": "Donation currency?",
-            "key": "donation_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report_",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "ffi_memorabilia": {
-      "none": {
-        "code": "CF14_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Item(s) given?",
-            "key": "item_s_given",
-            "type": "textarea"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Amount donated?",
-            "key": "amount_donated",
-            "type": "text"
-          },
-          {
-            "label": "Donation currency?",
-            "key": "donation_currency",
-            "type": "text"
-          },
-          {
-            "label": "Other relevant information?",
-            "key": "other_relevant_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report_",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "ffi_sponsored_awards_and_prizes": {
-      "none": {
-        "code": "CF15_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Name/title of sponsored fellowship/scholarship/award?",
-            "key": "name_title_of_sponsored_fellowship_scholarship_award",
-            "type": "text"
-          },
-          {
-            "label": "Funding amount per fellowship/scholarship/award?",
-            "key": "funding_amount_per_fellowship_scholarship_award",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other relevant information?",
-            "key": "other_relevant_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report_",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "named_professorship_chair": {
-      "none": {
-        "code": "CF16_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title of professorship?",
-            "key": "title_of_professorship",
-            "type": "text"
-          },
-          {
-            "label": "Name of appointee?",
-            "key": "name_of_appointee",
-            "type": "text"
-          },
-          {
-            "label": "Department?",
-            "key": "department",
-            "type": "text"
-          },
-          {
-            "label": "Amount funded?",
-            "key": "amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "other_campus_presence": {
-      "none": {
-        "code": "CF17_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title/Description of campus presence?",
-            "key": "title_description_of_campus_presence",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Amount funded?",
-            "key": "amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Other relevant information?",
-            "key": "other_relevant_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    }
-  },
-  educational_involvement: {
-    "curricula_advising": {
-      "none": {
-        "code": "CF18_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Level of curricula (undergrad, grad etc.)?",
-            "key": "level_of_curricula",
-            "type": "text"
-          },
-          {
-            "label": "Department?",
-            "key": "department",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other relevant information?",
-            "key": "other_relevant_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "ffi_lectures": {
-      "none": {
-        "code": "CF19_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title of Event?",
-            "key": "title_of_event",
-            "type": "text"
-          },
-          {
-            "label": "Event Location?",
-            "key": "event_location",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Number of FFI personnel attending?",
-            "key": "number_of_ffi_personnel_attending",
-            "type": "text"
-          },
-          {
-            "label": "Names of FFI personnel attending?",
-            "key": "names_of_ffi_personnel_attending",
-            "type": "textarea"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_sources_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "ffi_field_trips_or_workshops": {
-      "none": {
-        "code": "CF20_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title of Event?",
-            "key": "title_of_event",
-            "type": "text"
-          },
-          {
-            "label": "Event Location?",
-            "key": "event_location",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Number of FFI personnel attending?",
-            "key": "number_of_ffi_personnel_attending",
-            "type": "text"
-          },
-          {
-            "label": "Names of FFI personnel attending?",
-            "key": "names_of_ffi_personnel_attending",
-            "type": "textarea"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "other_educational_involvement": {
-      "none": {
-        "code": "CF21_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title/Description of educational involvement?",
-            "key": "title_description_of_educational_involvement",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Amount funded?",
-            "key": "amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Other relevant information?",
-            "key": "other_relevant_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    }
-  },
-  career_recruitment_engagements: {
-    "ffi_presence_at_career_events": {
-      "none": {
-        "code": "CF22_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title of career event or job fair?",
-            "key": "title_of_career_event_or_job_fair",
-            "type": "text"
-          },
-          {
-            "label": "Event location?",
-            "key": "event_location",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Number of FFI personnel attending?",
-            "key": "number_of_ffi_personnel_attending",
-            "type": "text"
-          },
-          {
-            "label": "Names of FFI personnel attending?",
-            "key": "names_of_ffi_personnel_attending",
-            "type": "textarea"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "internships_and_jobs": {
-      "none": {
-        "code": "CF23_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title/Description of Internship/Job?",
-            "key": "title_description_of_internship_job",
-            "type": "text"
-          },
-          {
-            "label": "Internship/Job Location?",
-            "key": "internship_job_location",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Remuneration (enter \u201cunknown\u201d if not specified, \u201cunpaid\u201d if internship is unpaid, otherwise enter remuneration amount)?",
-            "key": "remuneration_amount",
-            "type": "text"
-          },
-          {
-            "label": "Currency of remuneration (if applicable)?",
-            "key": "currency_of_remuneration_if_applicable",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "ffi_sponsored_fellowships_scholarships_and_other_awards": {
-      "none": {
-        "code": "CF24_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Name/title of sponsored fellowship/scholarship/award?",
-            "key": "name_title_of_sponsored_fellowship_scholarship_award",
-            "type": "text"
-          },
-          {
-            "label": "Funding amount per fellowship/scholarship/award?",
-            "key": "funding_amount_per_fellowship_scholarship_award",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Level of curricula (undergrad, grad etc.)?",
-            "key": "level_of_curricula",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other relevant information?",
-            "key": "other_relevant_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "career_advising": {
-      "none": {
-        "code": "CF25_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Level of student being advised (undergrad, grad etc.)?",
-            "key": "level_of_student_being_advised",
-            "type": "text"
-          },
-          {
-            "label": "Department?",
-            "key": "department",
-            "type": "text"
-          },
-          {
-            "label": "Title/Description of Internships or Jobs?",
-            "key": "title_description_of_internships_or_jobs",
-            "type": "text"
-          },
-          {
-            "label": "Internship/Job Location?",
-            "key": "internship_job_location",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other relevant information?",
-            "key": "other_relevant_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "networking_opportunities": {
-      "none": {
-        "code": "CF26_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title of networking opportunity?",
-            "key": "title_of_networking_opportunity",
-            "type": "text"
-          },
-          {
-            "label": "Networking opportunity Location?",
-            "key": "networking_opportunity_location",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Number of FFI personnel attending?",
-            "key": "number_of_ffi_personnel_attending",
-            "type": "text"
-          },
-          {
-            "label": "Names of FFI personnel attending?",
-            "key": "names_of_ffi_personnel_attending",
-            "type": "textarea"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "joint_trainings_and_workshops": {
-      "none": {
-        "code": "CF27_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title of training/workshop?",
-            "key": "title_of_training_workshop",
-            "type": "text"
-          },
-          {
-            "label": "Event Location?",
-            "key": "event_location",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Number of FFI personnel attending?",
-            "key": "number_of_ffi_personnel_attending",
-            "type": "text"
-          },
-          {
-            "label": "Names of FFI personnel attending?",
-            "key": "names_of_ffi_personnel_attending",
-            "type": "textarea"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "other_career_recruitment_engagements": {
-      "none": {
-        "code": "CF28_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title/description of engagement?",
-            "key": "title_description_of_engagement",
-            "type": "text"
-          },
-          {
-            "label": "Location of engagement?",
-            "key": "location_of_engagement",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    }
-  },
-  other_financial_and_contractual_relationships: {
-    "purely_financial_relationship": {
-      "gift_matching_programs": {
-        "code": "CF29_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "How many individual gifts/donations were matched?",
-            "key": "how_many_individual_gifts_donations_were_matched",
-            "type": "text"
-          },
-          {
-            "label": "Total amount funded?",
-            "key": "total_amount_funded",
-            "type": "text"
-          },
-          {
-            "label": "Funding currency?",
-            "key": "funding_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      },
-      "uni_endowment_invested_in_ffi": {
-        "code": "CF30_1",
-        "form": [
-          {
-            "label": "FFI beneficiary of investment?",
-            "key": "ffi_beneficiary_of_investment",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Amount invested?",
-            "key": "amount_invested",
-            "type": "text"
-          },
-          {
-            "label": "Investment amount currency?",
-            "key": "investment_amount_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      },
-      "uni_land_leasing_for_fracking_drilling_exploration": {
-        "code": "CF31_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Land usage (Fracking, exploration etc.)?",
-            "key": "land_usage_fracking_exploration",
-            "type": "text"
-          },
-          {
-            "label": "On indigenous land?",
-            "key": "on_indigenous_land",
-            "type": "text"
-          },
-          {
-            "label": "Size of land?",
-            "key": "size_of_land",
-            "type": "text"
-          },
-          {
-            "label": "Leasing revenue received by university?",
-            "key": "leasing_revenue_received_by_university",
-            "type": "text"
-          },
-          {
-            "label": "Leasing revenue currency?",
-            "key": "leasing_revenue_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      },
-      "donations_with_unspecified_interests_obligations_benefits": {
-        "code": "CF32_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title/description of donation?",
-            "key": "title_description_of_donation",
-            "type": "text"
-          },
-          {
-            "label": "Donation amount?",
-            "key": "donation_amount",
-            "type": "text"
-          },
-          {
-            "label": "Donation amount currency?",
-            "key": "donation_amount_currency",
-            "type": "text"
-          },
-          {
-            "label": "Donation date (yyyy)?",
-            "key": "donation_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_s_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      },
-      "other_financial_relationship": {
-        "code": "CF33_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Title/description of financial relationship?",
-            "key": "title_description_of_financial_relationship",
-            "type": "text"
-          },
-          {
-            "label": "Amount exchanged?",
-            "key": "amount_exchanged",
-            "type": "text"
-          },
-          {
-            "label": "Amount currency?",
-            "key": "amount_currency",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "high_level_institutional_agreements": {
-      "formal_contracts_between_ffi_and_uni": {
-        "code": "CF34_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Contains details on other ties?",
-            "key": "contains_details_on_other_ties",
-            "type": "textarea"
-          },
-          {
-            "label": "Title/description?",
-            "key": "title_description",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Signed date (mm-dd-yyyy or mm-yyyy or yyyy)?",
-            "key": "signed_date",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      },
-      "informal_understanding_between_ffi_and_uni": {
-        "code": "CF34_2",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Contains details on other ties?",
-            "key": "contains_details_on_other_ties",
-            "type": "textarea"
-          },
-          {
-            "label": "Title/description?",
-            "key": "title_description",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Signed date (mm-dd-yyyy or mm-yyyy or yyyy)?",
-            "key": "signed_date",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      },
-      "joint_ventures": {
-        "code": "CF34_3",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Contains details on other ties?",
-            "key": "contains_details_on_other_ties",
-            "type": "textarea"
-          },
-          {
-            "label": "Title/description?",
-            "key": "title_description",
-            "type": "text"
-          },
-          {
-            "label": "Start date (yyyy)?",
-            "key": "start_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date (yyyy)?",
-            "key": "end_date_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Signed date (mm-dd-yyyy or mm-yyyy or yyyy)?",
-            "key": "signed_date",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    }
-  },
-  personnel_overlap: {
-    "former_ffi_personnel_now_affiliated_with_uni": {
-      "none": {
-        "code": "CF35_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Name of personnel?",
-            "key": "name_of_personnel",
-            "type": "text"
-          },
-          {
-            "label": "Title at university?",
-            "key": "title_at_university",
-            "type": "text"
-          },
-          {
-            "label": "Start date at university (yyyy)?",
-            "key": "start_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at university (yyyy)?",
-            "key": "end_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Title at FFI?",
-            "key": "title_at_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Start date at FFI (yyyy)?",
-            "key": "start_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at FFI (yyyy)?",
-            "key": "end_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Remuneration?",
-            "key": "remuneration",
-            "type": "text"
-          },
-          {
-            "label": "Remuneration currency?",
-            "key": "remuneration_currency",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "former_uni_personnel_now_affiliated_with_ffi": {
-      "none": {
-        "code": "CF35_2",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Name of personnel?",
-            "key": "name_of_personnel",
-            "type": "text"
-          },
-          {
-            "label": "Title at university?",
-            "key": "title_at_university",
-            "type": "text"
-          },
-          {
-            "label": "Start date at university (yyyy)?",
-            "key": "start_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at university (yyyy)?",
-            "key": "end_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Title at FFI?",
-            "key": "title_at_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Start date at FFI (yyyy)?",
-            "key": "start_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at FFI (yyyy)?",
-            "key": "end_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Remuneration?",
-            "key": "remuneration",
-            "type": "text"
-          },
-          {
-            "label": "Remuneration currency?",
-            "key": "remuneration_currency",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "concurrently_affiliated_with_both_ffi_and_uni": {
-      "none": {
-        "code": "CF35_3",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Name of personnel?",
-            "key": "name_of_personnel",
-            "type": "text"
-          },
-          {
-            "label": "Title at university?",
-            "key": "title_at_university",
-            "type": "text"
-          },
-          {
-            "label": "Start date at university (yyyy)?",
-            "key": "start_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at university (yyyy)?",
-            "key": "end_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Title at FFI?",
-            "key": "title_at_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Start date at FFI (yyyy)?",
-            "key": "start_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at FFI (yyyy)?",
-            "key": "end_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Remuneration?",
-            "key": "remuneration",
-            "type": "text"
-          },
-          {
-            "label": "Remuneration currency?",
-            "key": "remuneration_currency",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    },
-    "other_personnel_overlap": {
-      "none": {
-        "code": "CF35_4",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Name of personnel?",
-            "key": "name_of_personnel",
-            "type": "text"
-          },
-          {
-            "label": "Title at university?",
-            "key": "title_at_university",
-            "type": "text"
-          },
-          {
-            "label": "Start date at university (yyyy)?",
-            "key": "start_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at university (yyyy)?",
-            "key": "end_date_at_university_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Title at FFI?",
-            "key": "title_at_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Start date at FFI (yyyy)?",
-            "key": "start_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "End date at FFI (yyyy)?",
-            "key": "end_date_at_ffi_yyyy",
-            "type": "text"
-          },
-          {
-            "label": "Remuneration?",
-            "key": "remuneration",
-            "type": "text"
-          },
-          {
-            "label": "Remuneration currency?",
-            "key": "remuneration_currency",
-            "type": "text"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    }
-  },
-  other: {
-    "other": {
-      "none": {
-        "code": "CF36_1",
-        "form": [
-          {
-            "label": "Which FFI?",
-            "key": "which_ffi",
-            "type": "text"
-          },
-          {
-            "label": "Industry group?",
-            "key": "industry_group",
-            "type": "select",
-            "options": ["1", "2", "3"]
-          },
-          {
-            "label": "Which university?",
-            "key": "which_university",
-            "type": "text"
-          },
-          {
-            "label": "Description of tie?",
-            "key": "description_of_tie",
-            "type": "textarea"
-          },
-          {
-            "label": "Other information?",
-            "key": "other_information",
-            "type": "textarea"
-          },
-          {
-            "label": "Apparent influence?",
-            "key": "apparent_influence",
-            "type": "text"
-          },
-          {
-            "label": "Noteworthy?",
-            "key": "noteworthy",
-            "type": "checkbox"
-          },
-          {
-            "label": "Source(s) other than Survey Report?",
-            "key": "source_other_than_survey_report_",
-            "type": "text"
-          },
-          {
-            "label": "Evidence/Quote(s) from sources other than Survey Report?",
-            "key": "evidence_quote_other_than_survey_report",
-            "type": "textarea"
-          }
-        ]
-      }
-    }
-  }
-}
-
-const categoryColors = {
-  "research_consultancy_ties": "red",
-  "campus_presence": "blue",
-  "educational_involvement": "green",
-  "career_recruitment_engagements": "orange",
-  "other_financial_and_contractual_relationships": "purple",
-  "personnel_overlap": "yellow",
-  "other": "grey"
-};
-
 const getAllCodePrefixedKeys = (categoryTree) => {
   const keys = new Set();
-
   Object.values(categoryTree).forEach(mesoMap => {
     Object.values(mesoMap).forEach(microMap => {
       Object.values(microMap).forEach(({ code, form }) => {
@@ -3332,11 +16,18 @@ const getAllCodePrefixedKeys = (categoryTree) => {
       });
     });
   });
-
   return Array.from(keys);
 };
 
-const App = () => {
+// ---------- Reusable PDF pane (one side) ----------
+const PdfPane = ({
+  side,                         // "left" | "right" (for debug/classes)
+  report,                       // filename selected (e.g. "A123.pdf")
+  setReport,                    // setter for dropdown changes
+  reportsList,                  // array of filenames
+  labelPrefix, setLabelPrefix,  // shared across panes (optional)
+  categoryTree, categoryColors  // provided by parent
+}) => {
   const [pdf, setPdf] = useState(null);
   const [pageImage, setPageImage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -3344,19 +35,54 @@ const App = () => {
   const [pendingBox, setPendingBox] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ macro: "", meso: "", micro: "", fields: {} });
-  const [labelPrefix, setLabelPrefix] = useState("");
   const [labelCount, setLabelCount] = useState(1);
 
+  // LocalStorage key per report
+  const storageKey = useMemo(() => report ? `savedBoxes:${report}` : null, [report]);
+
+  const [boxes, setBoxes] = useState(() => {
+    if (!storageKey) return [];
+    try {
+      const saved = localStorage.getItem(storageKey);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    // when report changes, load its saved boxes
+    if (!storageKey) return;
+    try {
+      const saved = localStorage.getItem(storageKey);
+      setBoxes(saved ? JSON.parse(saved) : []);
+      setCurrentPage(1);
+      setLabelCount(1);
+    } catch {
+      setBoxes([]);
+    }
+  }, [storageKey]);
+
+  useEffect(() => {
+    // persist per report
+    if (!storageKey) return;
+    localStorage.setItem(storageKey, JSON.stringify(boxes));
+  }, [boxes, storageKey]);
+
+  // Load the selected PDF
   useEffect(() => {
     const loadPDF = async () => {
-      const loadingTask = getDocument("/input.pdf");
+      if (!report) return;
+      const loadingTask = getDocument(`/reports/${encodeURIComponent(report)}`);
       const loadedPdf = await loadingTask.promise;
       setPdf(loadedPdf);
       setNumPages(loadedPdf.numPages);
+      setCurrentPage(1);
     };
     loadPDF();
-  }, []);
+  }, [report]);
 
+  // Render current page to image
   useEffect(() => {
     const renderPage = async () => {
       if (!pdf) return;
@@ -3372,28 +98,13 @@ const App = () => {
     renderPage();
   }, [pdf, currentPage]);
 
-  const goToPrevPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const goToNextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, numPages));
-  };
-
-  const [boxes, setBoxes] = useState(() => {
-    const saved = localStorage.getItem("savedBoxes");
-    return saved ? JSON.parse(saved) : [];
-  });
+  // Draw a box
   const [drawingBox, setDrawingBox] = useState(null);
   const containerRef = useRef(null);
   const startCoords = useRef(null);
 
-  useEffect(() => {
-    localStorage.setItem("savedBoxes", JSON.stringify(boxes));
-  }, [boxes]);
-
-
   const handleMouseDown = (e) => {
+    if (!containerRef.current) return;
     const bounds = containerRef.current.getBoundingClientRect();
     const x = e.clientX - bounds.left;
     const y = e.clientY - bounds.top;
@@ -3402,7 +113,7 @@ const App = () => {
   };
 
   const handleMouseMove = (e) => {
-    if (!startCoords.current) return;
+    if (!startCoords.current || !containerRef.current) return;
     const bounds = containerRef.current.getBoundingClientRect();
     const x = e.clientX - bounds.left;
     const y = e.clientY - bounds.top;
@@ -3427,104 +138,89 @@ const App = () => {
     setDrawingBox(null);
   };
 
+  // Form handlers
   const handleMacroChange = e => {
-    setFormData({ macro: e.target.value, meso: "", fields: {} });
+    setFormData({ macro: e.target.value, meso: "", micro: "", fields: {} });
   };
-
   const handleMesoChange = e => {
-    setFormData(data => ({ ...data, meso: e.target.value, fields: {} }));
+    setFormData(data => ({ ...data, meso: e.target.value, micro: "", fields: {} }));
   };
-
   const handleMicroChange = e => {
     setFormData(data => ({ ...data, micro: e.target.value, fields: {} }));
   };
-
   const updateField = (key, value) => {
-    setFormData(data => ({
-      ...data,
-      fields: { ...data.fields, [key]: value }
-    }));
+    setFormData(data => ({ ...data, fields: { ...data.fields, [key]: value } }));
   };
 
   const handleSave = () => {
     const { macro, meso, micro, fields } = formData;
+    if (!macro || !meso || !micro) return;
     const code = categoryTree[macro][meso][micro].code;
     const labelCode = labelPrefix ? `${labelPrefix}_${labelCount}` : `${labelCount}`;
-    
     const newBox = {
       ...pendingBox,
       boxNumber: labelCount,
-      label: { macro, meso, micro, code, fields, labelCode }
+      label: { macro, meso, micro, code, fields, labelCode },
+      report // attach report name for CSV
     };
-
-    setBoxes([...boxes, newBox]);
-    setLabelCount(labelCount + 1);
+    setBoxes(prev => [...prev, newBox]);
+    setLabelCount(c => c + 1);
     resetForm();
   };
 
   const handleCancel = () => resetForm();
-
   const resetForm = () => {
     setPendingBox(null);
     setShowForm(false);
     setFormData({ macro: "", meso: "", micro: "", fields: {} });
   };
 
+  const goToPrevPage = () => setCurrentPage(p => Math.max(p - 1, 1));
+  const goToNextPage = () => setCurrentPage(p => Math.min(p + 1, numPages));
+
+  // CSV downloads (per pane, scoped to current report)
   const handleDownloadCSV = () => {
     const allFieldKeys = getAllCodePrefixedKeys(categoryTree);
-
     const rows = boxes
       .filter(box => !box.previous)
       .map(box => {
         const { page, x, y, width, height, label } = box;
-        const { macro, meso, micro, code, fields = {} } = label;
-
+        const { macro, meso, micro, code, fields = {} } = label || {};
         const row = {
+          report: report || "",
           page, x, y, width, height,
           boxNumber: box.boxNumber,
           macro, meso, micro, code
         };
-
-        allFieldKeys.forEach(prefixedKey => {
-          row[prefixedKey] = "";
+        allFieldKeys.forEach(k => { row[k] = ""; });
+        Object.entries(fields).forEach(([k, v]) => {
+          const fullKey = `${code}_${k}`;
+          row[fullKey] = v;
         });
-
-        Object.entries(fields).forEach(([key, value]) => {
-          const fullKey = `${code}_${key}`;
-          row[fullKey] = value;
-        });
-
         return row;
       });
-
     const csv = Papa.unparse(rows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "labels.csv");
+    link.href = url;
+    link.download = `labels_${report || "unknown"}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-
   const handleDownloadCoordsCSV = () => {
     const coordRows = boxes.map(box => ({
-      page: box.page,
-      x: box.x,
-      y: box.y,
-      width: box.width,
-      height: box.height,
-      boxNumber: box.boxNumber
+      report: report || "",
+      page: box.page, x: box.x, y: box.y, width: box.width, height: box.height, boxNumber: box.boxNumber
     }));
-
     const csv = Papa.unparse(coordRows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "box_coordinates.csv");
+    link.href = url;
+    link.download = `box_coordinates_${report || "unknown"}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -3533,176 +229,173 @@ const App = () => {
   const handleLoadPreviousBoxes = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     Papa.parse(file, {
       header: true,
       complete: (results) => {
-        const importedBoxes = results.data.map(row => ({
+        const importedBoxes = (results.data || []).map(row => ({
           x: parseFloat(row.x),
           y: parseFloat(row.y),
           width: parseFloat(row.width),
           height: parseFloat(row.height),
           page: parseInt(row.page),
           boxNumber: parseInt(row.boxNumber),
-          previous: true // Mark as read-only/previous
-        }));
-
+          previous: true,
+          report: report || row.report || ""
+        })).filter(b => !Number.isNaN(b.x));
         setBoxes(prev => [...prev, ...importedBoxes]);
       }
     });
+    // clear input
+    e.target.value = "";
   };
 
+  const handleClearCurrentReport = () => {
+    if (!report) return;
+    if (window.confirm(`Clear all boxes for "${report}"?`)) {
+      setBoxes([]);                       // clear UI
+      if (storageKey) localStorage.removeItem(storageKey); // clear storage
+      setLabelCount(1);                   // reset numbering
+    }
+  };
 
-return (
-  <div style={{ textAlign: "center" }}>
-    <h1>PDF Label App</h1>
+  return (
+    <div className="pane" style={{ flex: 1, padding: "0.75rem", borderLeft: side === "right" ? "1px solid #eee" : "none" }}>
+      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "0.75rem" }}>
+        <strong>{side === "left" ? "Panel A" : "Panel B"}</strong>
+        <select
+          value={report || ""}
+          onChange={(e) => setReport(e.target.value || null)}
+          style={{ minWidth: 240, padding: "0.3rem" }}
+        >
+          <option value="">Select report…</option>
+          {reportsList.map(name => (
+            <option key={name} value={name}>{name}</option>
+          ))}
+        </select>
 
-    <div style={{ margin: "1rem" }}>
-      <label>
-        Load previous boxes (CSV):
-        <input type="file" accept=".csv" onChange={handleLoadPreviousBoxes} style={{ marginLeft: "0.5rem" }} />
-      </label>
-    </div>
+        <label style={{ marginLeft: "auto" }}>
+          Label Prefix:&nbsp;
+          <input
+            type="text"
+            value={labelPrefix}
+            onChange={(e) => {
+              setLabelPrefix(e.target.value);
+              setLabelCount(1);
+            }}
+            style={{ width: 80, padding: "0.3rem" }}
+          />
+        </label>
+      </div>
 
-    <div style={{ margin: "1rem" }}>
-      <label>
-        Label Code Prefix:&nbsp;
+      <div className="controls" style={{ marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+        <button onClick={() => setCurrentPage(1)} disabled={!pdf || currentPage === 1}>⏮ First</button>
+        <button onClick={goToPrevPage} disabled={!pdf || currentPage === 1}>⬅ Prev</button>
+        <span style={{ margin: "0 0.5rem" }}>
+          Page {pdf ? currentPage : "-"} of {pdf ? numPages : "-"}
+        </span>
+        <button onClick={goToNextPage} disabled={!pdf || currentPage === numPages}>Next ➡</button>
+        <button onClick={() => setCurrentPage(numPages)} disabled={!pdf || currentPage === numPages}>Last ⏭</button>
+
         <input
-          type="text"
-          value={labelPrefix}
-          onChange={(e) => {
-            setLabelPrefix(e.target.value);
-            setLabelCount(1); // reset count when prefix changes
-          }}
-          style={{ width: "60px", padding: "0.3rem" }}
-        />
-      </label>
-    </div>
-
-    <div className="controls" style={{ margin: "1rem" }}>
-      <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-        ⏮ First
-      </button>
-      <button onClick={goToPrevPage} disabled={currentPage === 1}>
-        ⬅ Previous
-      </button>
-
-      <span style={{ margin: "0 1rem" }}>
-        Page {currentPage} of {numPages}
-      </span>
-
-      <button onClick={goToNextPage} disabled={currentPage === numPages}>
-        Next ➡
-      </button>
-      <button onClick={() => setCurrentPage(numPages)} disabled={currentPage === numPages}>
-        Last ⏭
-      </button>
-
-      <input
-        type="number"
-        min="1"
-        max={numPages}
-        placeholder="Go to page"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            const val = parseInt(e.target.value);
-            if (val >= 1 && val <= numPages) {
-              setCurrentPage(val);
-              e.target.value = ""; // clear after jump
+          type="number"
+          min="1"
+          max={numPages || 1}
+          placeholder="Go to page"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              const val = parseInt(e.target.value);
+              if (pdf && val >= 1 && val <= numPages) {
+                setCurrentPage(val);
+                e.target.value = "";
+              }
             }
-          }
-        }}
-        style={{ marginLeft: "1rem", width: "100px", padding: "0.3rem" }}
-      />
+          }}
+          style={{ width: 90, padding: "0.3rem", marginLeft: "0.25rem" }}
+        />
 
-      <button onClick={handleDownloadCSV}>Download CSV</button>
-      <button onClick={handleDownloadCoordsCSV}>Download Coordinates Only</button>
-      <button onClick={() => localStorage.removeItem("savedBoxes")}>
-        Clear Saved Boxes
-      </button>
-    </div>
+        <button onClick={handleDownloadCSV} disabled={!report}>Download CSV</button>
+        <button onClick={handleDownloadCoordsCSV} disabled={!report}>Download Coords</button>
+        <button onClick={handleClearCurrentReport} disabled={!report}>Clear Boxes (this report)</button>
 
+        <label style={{ marginLeft: "auto" }}>
+          Load previous boxes (CSV):
+          <input type="file" accept=".csv" onChange={handleLoadPreviousBoxes} style={{ marginLeft: "0.5rem" }} />
+        </label>
+      </div>
 
-    <div className="main-layout">
-      {/* PDF Viewer Section */}
-      {pageImage && (
+      {/* Viewer */}
+      {pageImage ? (
         <div
           className="pdf-viewer"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           ref={containerRef}
+          style={{ position: "relative", display: "inline-block", userSelect: "none" }}
         >
           <img
             src={pageImage}
-            alt={`Page ${currentPage}`}
-            style={{ display: "block", userSelect: "none", pointerEvents: "none" }}
+            alt={`Page ${currentPage} - ${report}`}
+            style={{ display: "block", pointerEvents: "none", maxWidth: "100%" }}
           />
 
-          {/* Render existing boxes */}
-          {boxes
-            .filter(b => b.page === currentPage)
-            .map((box, idx) => {
-              const isPrevious = box.previous;
-              const macro = box.label?.macro;
-              const color = isPrevious ? "gray" : (categoryColors[macro] || "black");
+          {/* Existing boxes for this page */}
+          {boxes.filter(b => b.page === currentPage).map((box, idx) => {
+            const isPrevious = box.previous;
+            const macro = box.label?.macro;
+            const color = isPrevious ? "gray" : (categoryColors[macro] || "black");
 
-              const handleBoxClick = () => {
-                if (isPrevious) {
-                  // Clear previous label info and open form
-                  setPendingBox({ ...box, label: undefined });
-                  setFormData({ macro: "", meso: "", micro: "", fields: {} });
-                  setShowForm(true);
-                }
-              };
-              
+            const handleBoxClick = () => {
+              if (isPrevious) {
+                setPendingBox({ ...box, label: undefined });
+                setFormData({ macro: "", meso: "", micro: "", fields: {} });
+                setShowForm(true);
+              }
+            };
 
-              return (
-                <React.Fragment key={idx}>
-                  {/* The bounding box */}
+            return (
+              <React.Fragment key={idx}>
+                <div
+                  onClick={handleBoxClick}
+                  style={{
+                    position: "absolute",
+                    left: box.x,
+                    top: box.y,
+                    width: box.width,
+                    height: box.height,
+                    border: `2px ${isPrevious ? "dotted" : "solid"} ${color}`,
+                    cursor: isPrevious ? "pointer" : "default",
+                    backgroundColor: isPrevious ? "rgba(100,100,100,0.05)" : "transparent"
+                  }}
+                  title={
+                    isPrevious
+                      ? "Click to label this box"
+                      : `${box.label.macro} / ${box.label.meso} (${box.label.code})`
+                  }
+                />
+                {box.boxNumber && (
                   <div
-                    onClick={handleBoxClick}
                     style={{
                       position: "absolute",
-                      left: box.x,
-                      top: box.y,
-                      width: box.width,
-                      height: box.height,
-                      border: `2px ${isPrevious ? "dotted" : "solid"} ${color}`,
-                      cursor: isPrevious ? "pointer" : "default",
-                      backgroundColor: isPrevious ? "rgba(100,100,100,0.05)" : "transparent"
+                      left: box.x + box.width - 14,
+                      top: box.y - 2,
+                      fontSize: 12,
+                      background: "white",
+                      color: "black",
+                      padding: "0 3px",
+                      borderRadius: 2,
+                      border: "1px solid #aaa",
+                      pointerEvents: "none"
                     }}
-                    title={
-                      isPrevious
-                        ? "Click to label this box"
-                        : `${box.label.macro} / ${box.label.meso} (${box.label.code})`
-                    }
-                  />
+                  >
+                    {box.boxNumber}
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
 
-                  {/* Box number label */}
-                  {box.boxNumber && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: box.x + box.width - 14,
-                        top: box.y - 2,
-                        fontSize: "12px",
-                        background: "white",
-                        color: "black",
-                        padding: "0 3px",
-                        borderRadius: "2px",
-                        border: "1px solid #aaa",
-                        pointerEvents: "none"
-                      }}
-                    >
-                      {box.boxNumber}
-                    </div>
-                  )}
-                </React.Fragment>
-              );
-            })}
-
-          {/* Draw the current box in progress */}
+          {/* In-progress box */}
           {drawingBox && (
             <div
               style={{
@@ -3716,11 +409,15 @@ return (
             />
           )}
         </div>
+      ) : (
+        <div style={{ padding: "1rem", color: "#666" }}>
+          {report ? "Loading…" : "Select a report to begin"}
+        </div>
       )}
 
-      {/* Form Sidebar */}
+      {/* Sidebar form */}
       {showForm && (
-        <div className="form-container">
+        <div className="form-container" style={{ marginTop: "0.75rem", borderTop: "1px solid #eee", paddingTop: "0.75rem" }}>
           <select value={formData.macro} onChange={handleMacroChange}>
             <option value="">Select Macro</option>
             {Object.keys(categoryTree).map(macro => (
@@ -3747,9 +444,9 @@ return (
           )}
 
           {formData.macro && formData.meso && formData.micro && (
-            <div className="dynamic-fields">
+            <div className="dynamic-fields" style={{ marginTop: "0.5rem" }}>
               {categoryTree[formData.macro][formData.meso][formData.micro].form.map(f => (
-                <div key={f.key}>
+                <div key={f.key} style={{ marginBottom: "0.4rem" }}>
                   <label>
                     {f.label}
                     {f.type === 'textarea' ? (
@@ -3786,15 +483,73 @@ return (
             </div>
           )}
 
-          <div className="form-buttons">
+          <div className="form-buttons" style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}>
             <button onClick={handleSave} disabled={!formData.macro || !formData.meso || !formData.micro}>Save</button>
             <button onClick={handleCancel}>Cancel</button>
           </div>
         </div>
       )}
     </div>
-  </div>
-)};
+  );
+};
 
+// ---------- App with two panels ----------
+const App = () => {
+  const [reportsList, setReportsList] = useState([]);
+  const [leftReport, setLeftReport] = useState(null);
+  const [rightReport, setRightReport] = useState(null);
+
+  const [labelPrefix, setLabelPrefix] = useState("");
+
+  // fetch list of files once
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const res = await fetch("/api/reports");
+        const data = await res.json();
+        setReportsList(data);
+        // pick sensible defaults if present
+        if (data.length > 0 && !leftReport) setLeftReport(data[0]);
+        if (data.length > 1 && !rightReport) setRightReport(data[1]);
+      } catch (e) {
+        console.error("Failed to fetch /api/reports", e);
+      }
+    };
+    fetchReports();
+  }, []); // eslint-disable-line
+
+  return (
+    <div style={{ padding: "1rem" }}>
+      <h1>PDF Label App (Two-Panel)</h1>
+      <p style={{ color: "#666", marginTop: "-0.5rem" }}>
+        Choose any two reports to compare side-by-side. Boxes & CSVs are saved per report.
+      </p>
+
+      <div className="main-layout" style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+        <PdfPane
+          side="left"
+          report={leftReport}
+          setReport={setLeftReport}
+          reportsList={reportsList}
+          labelPrefix={labelPrefix}
+          setLabelPrefix={setLabelPrefix}
+          categoryTree={categoryTree}
+          categoryColors={categoryColors}
+        />
+
+        <PdfPane
+          side="right"
+          report={rightReport}
+          setReport={setRightReport}
+          reportsList={reportsList}
+          labelPrefix={labelPrefix}
+          setLabelPrefix={setLabelPrefix}
+          categoryTree={categoryTree}
+          categoryColors={categoryColors}
+        />
+      </div>
+    </div>
+  );
+};
 
 export default App;

@@ -2,7 +2,10 @@
   "name": "pdf-label-app",
   "version": "1.0.0",
   "private": true,
+  "proxy": "http://localhost:3001",
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
     "papaparse": "^5.5.3",
     "pdfjs-dist": "^2.16.105",
     "react": "^18.2.0",
