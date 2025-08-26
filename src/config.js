@@ -4,6 +4,14 @@ export const categoryTree = {
       "none": {
         "code": "CF1_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -102,6 +110,14 @@ export const categoryTree = {
       "none": {
         "code": "CF2_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi_",
@@ -230,6 +246,14 @@ export const categoryTree = {
       "none": {
         "code": "CF3_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -358,6 +382,14 @@ export const categoryTree = {
       "none": {
         "code": "CF4_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -446,6 +478,14 @@ export const categoryTree = {
       "none": {
         "code": "CF5_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -524,6 +564,14 @@ export const categoryTree = {
       "none": {
         "code": "CF6_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -599,6 +647,14 @@ export const categoryTree = {
       "none": {
         "code": "CF7_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -682,6 +738,14 @@ export const categoryTree = {
       "none": {
         "code": "CF8_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -760,6 +824,14 @@ export const categoryTree = {
       "none": {
         "code": "CF9_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -833,6 +905,14 @@ export const categoryTree = {
       "none": {
         "code": "CF10_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -921,6 +1001,14 @@ export const categoryTree = {
       "none": {
         "code": "CF11_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1009,6 +1097,14 @@ export const categoryTree = {
       "none": {
         "code": "CF12_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1087,6 +1183,14 @@ export const categoryTree = {
       "none": {
         "code": "CF13_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1165,6 +1269,14 @@ export const categoryTree = {
       "none": {
         "code": "CF14_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1238,6 +1350,14 @@ export const categoryTree = {
       "none": {
         "code": "CF15_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1311,6 +1431,14 @@ export const categoryTree = {
       "none": {
         "code": "CF16_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1394,6 +1522,14 @@ export const categoryTree = {
       "none": {
         "code": "CF17_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1469,6 +1605,14 @@ export const categoryTree = {
       "none": {
         "code": "CF18_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1537,6 +1681,14 @@ export const categoryTree = {
       "none": {
         "code": "CF19_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1615,6 +1767,14 @@ export const categoryTree = {
       "none": {
         "code": "CF20_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1693,6 +1853,14 @@ export const categoryTree = {
       "none": {
         "code": "CF21_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1768,6 +1936,14 @@ export const categoryTree = {
       "none": {
         "code": "CF22_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1846,6 +2022,14 @@ export const categoryTree = {
       "none": {
         "code": "CF23_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -1924,6 +2108,14 @@ export const categoryTree = {
       "none": {
         "code": "CF24_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2002,6 +2194,14 @@ export const categoryTree = {
       "none": {
         "code": "CF25_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2080,6 +2280,14 @@ export const categoryTree = {
       "none": {
         "code": "CF26_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2158,6 +2366,14 @@ export const categoryTree = {
       "none": {
         "code": "CF27_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2236,6 +2452,14 @@ export const categoryTree = {
       "none": {
         "code": "CF28_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2306,6 +2530,14 @@ export const categoryTree = {
       "gift_matching_programs": {
         "code": "CF29_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2377,6 +2609,14 @@ export const categoryTree = {
       "uni_endowment_invested_in_ffi": {
         "code": "CF30_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "FFI beneficiary of investment?",
             "key": "ffi_beneficiary_of_investment",
@@ -2443,6 +2683,14 @@ export const categoryTree = {
       "uni_land_leasing_for_fracking_drilling_exploration": {
         "code": "CF31_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2524,6 +2772,14 @@ export const categoryTree = {
       "donations_with_unspecified_interests_obligations_benefits": {
         "code": "CF32_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2590,6 +2846,14 @@ export const categoryTree = {
       "other_financial_relationship": {
         "code": "CF33_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2663,6 +2927,14 @@ export const categoryTree = {
       "formal_contracts_between_ffi_and_uni": {
         "code": "CF34_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2734,6 +3006,14 @@ export const categoryTree = {
       "informal_understanding_between_ffi_and_uni": {
         "code": "CF34_2",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2805,6 +3085,14 @@ export const categoryTree = {
       "joint_ventures": {
         "code": "CF34_3",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2880,6 +3168,14 @@ export const categoryTree = {
       "none": {
         "code": "CF35_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -2973,6 +3269,14 @@ export const categoryTree = {
       "none": {
         "code": "CF35_2",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -3066,6 +3370,14 @@ export const categoryTree = {
       "none": {
         "code": "CF35_3",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -3159,6 +3471,14 @@ export const categoryTree = {
       "none": {
         "code": "CF35_4",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",
@@ -3254,6 +3574,14 @@ export const categoryTree = {
       "none": {
         "code": "CF36_1",
         "form": [
+          {"label": "Direct duplicate",
+            "key": "direct_duplicate",
+            "type": "checkbox"
+          },
+          {"label": "Expansion",
+            "key": "expansion",
+            "type": "checkbox"
+          },
           {
             "label": "Which FFI?",
             "key": "which_ffi",

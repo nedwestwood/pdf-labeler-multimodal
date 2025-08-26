@@ -7,12 +7,27 @@ import Papa from "papaparse";
 import "pdfjs-dist/build/pdf.worker.entry";
 import "./App.css";
 
+// ---- helpers (top-level) ----
+const parseDocNumber = (filename) => {
+  const m = filename?.match(/_(\d+)\.pdf$/i);
+  return m ? m[1] : (filename?.replace(/\.pdf$/i, "") || "");
+};
+
+// NEW: link field keys used in categoryTree but handled at app level
+const LINK_FIELD_KEYS = ["direct_duplicate", "expansion"];
+const isLinkField = (k) => LINK_FIELD_KEYS.includes((k || "").toString().toLowerCase());
+
+// Filter link fields out of code-prefixed CSV columns
 const getAllCodePrefixedKeys = (categoryTree) => {
   const keys = new Set();
   Object.values(categoryTree).forEach(mesoMap => {
     Object.values(mesoMap).forEach(microMap => {
       Object.values(microMap).forEach(({ code, form }) => {
-        form.forEach(field => keys.add(`${code}_${field.key}`));
+        form.forEach(field => {
+          if (!isLinkField(field.key)) {
+            keys.add(`${code}_${field.key}`);
+          }
+        });
       });
     });
   });
@@ -21,12 +36,24 @@ const getAllCodePrefixedKeys = (categoryTree) => {
 
 // ---------- Reusable PDF pane (one side) ----------
 const PdfPane = ({
-  side,                         // "left" | "right" (for debug/classes)
+  side,                         // "left" | "right"
   report,                       // filename selected (e.g. "A123.pdf")
   setReport,                    // setter for dropdown changes
   reportsList,                  // array of filenames
   labelPrefix, setLabelPrefix,  // shared across panes (optional)
-  categoryTree, categoryColors  // provided by parent
+  categoryTree, categoryColors, // provided by parent
+
+  // cross-pane linking props
+  onRequestLink,             // (side, "duplicate"|"expansion")
+  isPickMode,                // boolean: this pane is the TARGET to pick on
+  pickType,                  // "duplicate" | "expansion" | null
+  onPickTarget,              // ({ targetReport, targetBoxNumber })
+  onCancelPick,              // () => void
+
+  // pending link tokens for THIS pane (used when saving)
+  pendingLinkDuplicate,      // string like "12345#7"
+  pendingLinkExpansion,      // string like "67890#2"
+  onClearPendingLink         // (side, "duplicate"|"expansion")
 }) => {
   const [pdf, setPdf] = useState(null);
   const [pageImage, setPageImage] = useState(null);
@@ -49,6 +76,33 @@ const PdfPane = ({
       return [];
     }
   });
+
+  // Watch the two link checkboxes and trigger pick-mode on the OTHER pane
+  const prevDup = useRef(!!formData.fields?.direct_duplicate);
+  const prevExp = useRef(!!formData.fields?.expansion);
+
+  useEffect(() => {
+    const dupNow = !!formData.fields?.direct_duplicate;
+    const expNow = !!formData.fields?.expansion;
+
+    // only enter pick-mode when flipping ON and no token exists yet
+    if (!prevDup.current && dupNow && !pendingLinkDuplicate) {
+      onRequestLink?.(side, "duplicate");
+    }
+    if (!prevExp.current && expNow && !pendingLinkExpansion) {
+      onRequestLink?.(side, "expansion");
+    }
+
+    prevDup.current = dupNow;
+    prevExp.current = expNow;
+  }, [
+    formData.fields?.direct_duplicate,
+    formData.fields?.expansion,
+    pendingLinkDuplicate,
+    pendingLinkExpansion,
+    side,
+    onRequestLink
+  ]);
 
   useEffect(() => {
     // when report changes, load its saved boxes
@@ -104,6 +158,7 @@ const PdfPane = ({
   const startCoords = useRef(null);
 
   const handleMouseDown = (e) => {
+    if (isPickMode) return;            // 🔒 don't start drawing while picking
     if (!containerRef.current) return;
     const bounds = containerRef.current.getBoundingClientRect();
     const x = e.clientX - bounds.left;
@@ -113,14 +168,13 @@ const PdfPane = ({
   };
 
   const handleMouseMove = (e) => {
+    if (isPickMode) return;            // 🔒
     if (!startCoords.current || !containerRef.current) return;
     const bounds = containerRef.current.getBoundingClientRect();
     const x = e.clientX - bounds.left;
     const y = e.clientY - bounds.top;
-
     const startX = startCoords.current.x;
     const startY = startCoords.current.y;
-
     setDrawingBox({
       x: Math.min(startX, x),
       y: Math.min(startY, y),
@@ -130,6 +184,7 @@ const PdfPane = ({
   };
 
   const handleMouseUp = () => {
+    if (isPickMode) return;            // 🔒
     if (drawingBox) {
       setPendingBox({ ...drawingBox, page: currentPage });
       setShowForm(true);
@@ -157,15 +212,31 @@ const PdfPane = ({
     if (!macro || !meso || !micro) return;
     const code = categoryTree[macro][meso][micro].code;
     const labelCode = labelPrefix ? `${labelPrefix}_${labelCount}` : `${labelCount}`;
+
+    // strip link fields from saved per-form fields
+    const filteredFields = Object.fromEntries(
+      Object.entries(fields || {}).filter(([k]) => !isLinkField(k))
+    );
+
     const newBox = {
       ...pendingBox,
       boxNumber: labelCount,
-      label: { macro, meso, micro, code, fields, labelCode },
-      report // attach report name for CSV
+      report,
+      label: { macro, meso, micro, code, fields: filteredFields, labelCode },
+      // store link tokens (global CSV columns)
+      links: {
+        duplicate: pendingLinkDuplicate || "",
+        expansion: pendingLinkExpansion || ""
+      }
     };
+
     setBoxes(prev => [...prev, newBox]);
     setLabelCount(c => c + 1);
     resetForm();
+
+    // optional: clear tokens after saving
+    onClearPendingLink?.(side, "duplicate");
+    onClearPendingLink?.(side, "expansion");
   };
 
   const handleCancel = () => resetForm();
@@ -181,24 +252,35 @@ const PdfPane = ({
   // CSV downloads (per pane, scoped to current report)
   const handleDownloadCSV = () => {
     const allFieldKeys = getAllCodePrefixedKeys(categoryTree);
+
     const rows = boxes
       .filter(box => !box.previous)
       .map(box => {
-        const { page, x, y, width, height, label } = box;
+        const { page, x, y, width, height, label, links } = box;
         const { macro, meso, micro, code, fields = {} } = label || {};
+
         const row = {
           report: report || "",
           page, x, y, width, height,
           boxNumber: box.boxNumber,
-          macro, meso, micro, code
+          macro, meso, micro, code,
+          "Direct duplicate": links?.duplicate || "",
+          "Expansion":        links?.expansion || ""
         };
+
+        // initialize all per-form columns (excluding link fields)
         allFieldKeys.forEach(k => { row[k] = ""; });
+
+        // write form fields (skip link fields defensively)
         Object.entries(fields).forEach(([k, v]) => {
+          if (isLinkField(k)) return;
           const fullKey = `${code}_${k}`;
           row[fullKey] = v;
         });
+
         return row;
       });
+
     const csv = Papa.unparse(rows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -232,29 +314,36 @@ const PdfPane = ({
     Papa.parse(file, {
       header: true,
       complete: (results) => {
-        const importedBoxes = (results.data || []).map(row => ({
-          x: parseFloat(row.x),
-          y: parseFloat(row.y),
-          width: parseFloat(row.width),
-          height: parseFloat(row.height),
-          page: parseInt(row.page),
-          boxNumber: parseInt(row.boxNumber),
-          previous: true,
-          report: report || row.report || ""
-        })).filter(b => !Number.isNaN(b.x));
+        const importedBoxes = (results.data || []).map((row, idx) => {
+          const x = parseFloat(row.x);
+          const y = parseFloat(row.y);
+          const width = parseFloat(row.width);
+          const height = parseFloat(row.height);
+          const page = parseInt(row.page);
+          let boxNumber = parseInt(row.boxNumber);
+          if (Number.isNaN(boxNumber)) {
+            const existing = Array.isArray(boxes) ? boxes.length : 0;
+            boxNumber = existing + idx + 1; // fallback numbering if missing
+          }
+          return {
+            x, y, width, height, page,
+            boxNumber,
+            previous: true,
+            report: report || row.report || ""
+          };
+        }).filter(b => !Number.isNaN(b.x) && !Number.isNaN(b.y));
         setBoxes(prev => [...prev, ...importedBoxes]);
       }
     });
-    // clear input
     e.target.value = "";
   };
 
   const handleClearCurrentReport = () => {
     if (!report) return;
     if (window.confirm(`Clear all boxes for "${report}"?`)) {
-      setBoxes([]);                       // clear UI
-      if (storageKey) localStorage.removeItem(storageKey); // clear storage
-      setLabelCount(1);                   // reset numbering
+      setBoxes([]);
+      if (storageKey) localStorage.removeItem(storageKey);
+      setLabelCount(1);
     }
   };
 
@@ -286,6 +375,14 @@ const PdfPane = ({
           />
         </label>
       </div>
+
+      {isPickMode && (
+        <div style={{ marginBottom: "0.5rem", padding: "0.5rem", background: "#fffbe6", border: "1px solid #ffe58f", borderRadius: 6 }}>
+          Pick a box to link as <strong>{pickType === "duplicate" ? "Direct duplicate" : "Expansion"}</strong> for Panel {side === "left" ? "B" : "A"}.
+          You may change report or page before clicking.
+          <button onClick={onCancelPick} style={{ marginLeft: 8 }}>Cancel</button>
+        </div>
+      )}
 
       <div className="controls" style={{ marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
         <button onClick={() => setCurrentPage(1)} disabled={!pdf || currentPage === 1}>⏮ First</button>
@@ -346,6 +443,12 @@ const PdfPane = ({
             const color = isPrevious ? "gray" : (categoryColors[macro] || "black");
 
             const handleBoxClick = () => {
+              if (isPickMode) {
+                // 🎯 while picking, ANY box click selects the target (no form opens)
+                onPickTarget?.({ targetReport: report, targetBoxNumber: box.boxNumber });
+                return;
+              }
+              // Normal behavior only when NOT picking
               if (isPrevious) {
                 setPendingBox({ ...box, label: undefined });
                 setFormData({ macro: "", meso: "", micro: "", fields: {} });
@@ -364,13 +467,16 @@ const PdfPane = ({
                     width: box.width,
                     height: box.height,
                     border: `2px ${isPrevious ? "dotted" : "solid"} ${color}`,
-                    cursor: isPrevious ? "pointer" : "default",
-                    backgroundColor: isPrevious ? "rgba(100,100,100,0.05)" : "transparent"
+                    cursor: isPickMode ? "crosshair" : (isPrevious ? "pointer" : "default"),
+                    backgroundColor: isPrevious ? "rgba(100,100,100,0.05)" : "transparent",
+                    boxShadow: isPickMode ? "0 0 0 2px rgba(24,144,255,0.35)" : "none"
                   }}
                   title={
-                    isPrevious
-                      ? "Click to label this box"
-                      : `${box.label.macro} / ${box.label.meso} (${box.label.code})`
+                    isPickMode
+                      ? "Click to choose this as the link target"
+                      : (isPrevious
+                          ? "Click to add a new label to this box"
+                          : `${box.label?.macro} / ${box.label?.meso} (${box.label?.code})`)
                   }
                 />
                 {box.boxNumber && (
@@ -443,49 +549,131 @@ const PdfPane = ({
             </select>
           )}
 
-          {formData.macro && formData.meso && formData.micro && (
-            <div className="dynamic-fields" style={{ marginTop: "0.5rem" }}>
-              {categoryTree[formData.macro][formData.meso][formData.micro].form.map(f => (
-                <div key={f.key} style={{ marginBottom: "0.4rem" }}>
-                  <label>
-                    {f.label}
-                    {f.type === 'textarea' ? (
-                      <textarea
-                        value={formData.fields[f.key] || ''}
-                        onChange={e => updateField(f.key, e.target.value)}
-                      />
-                    ) : f.type === 'checkbox' ? (
-                      <input
-                        type="checkbox"
-                        checked={!!formData.fields[f.key]}
-                        onChange={e => updateField(f.key, e.target.checked)}
-                      />
-                    ) : f.type === 'select' ? (
-                      <select
-                        value={formData.fields[f.key] || ''}
-                        onChange={e => updateField(f.key, e.target.value)}
-                      >
-                        <option value="">Select...</option>
-                        {f.options.map((opt, idx) => (
-                          <option key={idx} value={opt}>{opt}</option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input
-                        type={f.type}
-                        value={formData.fields[f.key] || ''}
-                        onChange={e => updateField(f.key, e.target.value)}
-                      />
-                    )}
-                  </label>
+          {/* APP-LEVEL LINK CHECKBOXES (drive pick-mode, not saved as code-prefixed fields) */}
+          {(formData.macro && formData.meso && formData.micro) && (
+            <div style={{ margin: "0.5rem 0", padding: "0.5rem", border: "1px dashed #ddd", borderRadius: 6 }}>
+              <label style={{ display: "inline-flex", alignItems: "center", gap: 6, marginRight: 16 }}>
+                <input
+                  type="checkbox"
+                  checked={!!formData.fields.direct_duplicate}
+                  onChange={e => updateField("direct_duplicate", e.target.checked)}
+                />
+                Direct duplicate
+              </label>
+              <label style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <input
+                  type="checkbox"
+                  checked={!!formData.fields.expansion}
+                  onChange={e => updateField("expansion", e.target.checked)}
+                />
+                Expansion
+              </label>
+
+              {(formData.fields?.direct_duplicate || pendingLinkDuplicate) && (
+                <div style={{ marginTop: 8 }}>
+                  <small>Direct duplicate target: {pendingLinkDuplicate || <em>waiting…</em>}</small>
+                  {pendingLinkDuplicate && (
+                    <button
+                      type="button"
+                      onClick={() => onClearPendingLink?.(side, "duplicate")}
+                      style={{ marginLeft: 8 }}
+                    >
+                      Clear
+                    </button>
+                  )}
                 </div>
-              ))}
+              )}
+              {(formData.fields?.expansion || pendingLinkExpansion) && (
+                <div style={{ marginTop: 6 }}>
+                  <small>Expansion target: {pendingLinkExpansion || <em>waiting…</em>}</small>
+                  {pendingLinkExpansion && (
+                    <button
+                      type="button"
+                      onClick={() => onClearPendingLink?.(side, "expansion")}
+                      style={{ marginLeft: 8 }}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
-          <div className="form-buttons" style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}>
+          {formData.macro && formData.meso && formData.micro && (
+            <div className="dynamic-fields" style={{ marginTop: "0.5rem" }}>
+              {categoryTree[formData.macro][formData.meso][formData.micro].form
+                .filter(f => !isLinkField(f.key)) // HIDE app-level link fields
+                .map(f => (
+                  <div key={f.key} style={{ marginBottom: "0.4rem" }}>
+                    <label>
+                      {f.label}
+                      {f.type === 'textarea' ? (
+                        <textarea
+                          value={formData.fields[f.key] || ''}
+                          onChange={e => updateField(f.key, e.target.value)}
+                        />
+                      ) : f.type === 'checkbox' ? (
+                        <input
+                          type="checkbox"
+                          checked={!!formData.fields[f.key]}
+                          onChange={e => updateField(f.key, e.target.checked)}
+                        />
+                      ) : f.type === 'select' ? (
+                        <select
+                          value={formData.fields[f.key] || ''}
+                          onChange={e => updateField(f.key, e.target.value)}
+                        >
+                          <option value="">Select...</option>
+                          {f.options.map((opt, idx) => (
+                            <option key={idx} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type={f.type}
+                          value={formData.fields[f.key] || ''}
+                          onChange={e => updateField(f.key, e.target.value)}
+                        />
+                      )}
+                    </label>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          <div className="form-buttons" style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
             <button onClick={handleSave} disabled={!formData.macro || !formData.meso || !formData.micro}>Save</button>
             <button onClick={handleCancel}>Cancel</button>
+
+            {(formData.fields?.direct_duplicate || pendingLinkDuplicate) && (
+              <div style={{ marginTop: 8 }}>
+                <small>Direct duplicate target: {pendingLinkDuplicate || <em>waiting…</em>}</small>
+                {pendingLinkDuplicate && (
+                  <button
+                    type="button"
+                    onClick={() => onClearPendingLink?.(side, "duplicate")}
+                    style={{ marginLeft: 8 }}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            )}
+            {(formData.fields?.expansion || pendingLinkExpansion) && (
+              <div style={{ marginTop: 4 }}>
+                <small>Expansion target: {pendingLinkExpansion || <em>waiting…</em>}</small>
+                {pendingLinkExpansion && (
+                  <button
+                    type="button"
+                    onClick={() => onClearPendingLink?.(side, "expansion")}
+                    style={{ marginLeft: 8 }}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -498,8 +686,53 @@ const App = () => {
   const [reportsList, setReportsList] = useState([]);
   const [leftReport, setLeftReport] = useState(null);
   const [rightReport, setRightReport] = useState(null);
-
   const [labelPrefix, setLabelPrefix] = useState("");
+
+  // global pick mode request
+  const [linkingRequest, setLinkingRequest] = useState(null);
+  // shape: { requesterSide: "left"|"right", type: "duplicate"|"expansion" }
+
+  // pending link tokens per pane
+  const [pendingLinks, setPendingLinks] = useState({
+    left:   { duplicate: "", expansion: "" },
+    right:  { duplicate: "", expansion: "" }
+  });
+
+  // When a pane ticks a checkbox -> request pick mode
+  const handleRequestLink = (requesterSide, type) => {
+    setLinkingRequest({ requesterSide, type });
+  };
+
+  // Target pane clicked a box while in pick mode
+  const handlePickTarget = ({ targetReport, targetBoxNumber }) => {
+    if (!linkingRequest) return; // safety
+    const { requesterSide, type } = linkingRequest;
+    const docNumber = parseDocNumber(targetReport);
+    const token = `${docNumber}#${targetBoxNumber}`;
+
+    setPendingLinks(prev => ({
+      ...prev,
+      [requesterSide]: {
+        ...prev[requesterSide],
+        [type]: token
+      }
+    }));
+
+    setLinkingRequest(null); // exit pick mode
+  };
+
+  // Allow either pane to clear its pending link token
+  const handleClearPendingLink = (side, type) => {
+    setPendingLinks(prev => ({
+      ...prev,
+      [side]: {
+        ...prev[side],
+        [type]: ""
+      }
+    }));
+  };
+
+  const cancelPickMode = () => setLinkingRequest(null);
 
   // fetch list of files once
   useEffect(() => {
@@ -508,7 +741,6 @@ const App = () => {
         const res = await fetch("/api/reports");
         const data = await res.json();
         setReportsList(data);
-        // pick sensible defaults if present
         if (data.length > 0 && !leftReport) setLeftReport(data[0]);
         if (data.length > 1 && !rightReport) setRightReport(data[1]);
       } catch (e) {
@@ -535,6 +767,14 @@ const App = () => {
           setLabelPrefix={setLabelPrefix}
           categoryTree={categoryTree}
           categoryColors={categoryColors}
+          onRequestLink={handleRequestLink}
+          isPickMode={!!linkingRequest && linkingRequest.requesterSide !== "left"}
+          pickType={linkingRequest?.type || null}
+          onPickTarget={handlePickTarget}
+          onCancelPick={cancelPickMode}
+          pendingLinkDuplicate={pendingLinks.left.duplicate}
+          pendingLinkExpansion={pendingLinks.left.expansion}
+          onClearPendingLink={handleClearPendingLink}
         />
 
         <PdfPane
@@ -546,6 +786,14 @@ const App = () => {
           setLabelPrefix={setLabelPrefix}
           categoryTree={categoryTree}
           categoryColors={categoryColors}
+          onRequestLink={handleRequestLink}
+          isPickMode={!!linkingRequest && linkingRequest.requesterSide !== "right"}
+          pickType={linkingRequest?.type || null}
+          onPickTarget={handlePickTarget}
+          onCancelPick={cancelPickMode}
+          pendingLinkDuplicate={pendingLinks.right.duplicate}
+          pendingLinkExpansion={pendingLinks.right.expansion}
+          onClearPendingLink={handleClearPendingLink}
         />
       </div>
     </div>
