@@ -7,6 +7,8 @@ import Papa from "papaparse";
 import "pdfjs-dist/build/pdf.worker.entry";
 import "./App.css";
 
+const API_BASE = process.env.REACT_APP_API_BASE || "";
+
 // ---- helpers (top-level) ----
 const parseDocNumber = (filename) => {
   const m = filename?.match(/_(\d+)\.pdf$/i);
@@ -127,7 +129,7 @@ const PdfPane = ({
   useEffect(() => {
     const loadPDF = async () => {
       if (!report) return;
-      const loadingTask = getDocument(`/reports/${encodeURIComponent(report)}`);
+      const loadingTask = getDocument(`${API_BASE}/reports/${encodeURIComponent(report)}`);
       const loadedPdf = await loadingTask.promise;
       setPdf(loadedPdf);
       setNumPages(loadedPdf.numPages);
@@ -738,9 +740,19 @@ const App = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await fetch("/api/reports");
+        const res = await fetch(`${API_BASE}/api/reports`);
+        const ct = res.headers.get("content-type") || "";
+        if (!res.ok) {
+          const body = await res.text();
+          throw new Error(`GET /api/reports -> ${res.status}. Body: ${body.slice(0,200)}`);
+        }
+        if (!ct.includes("application/json")) {
+          const body = await res.text();
+          throw new Error(`Expected JSON but got "${ct}". Body: ${body.slice(0,200)}`);
+        }
         const data = await res.json();
         setReportsList(data);
+
         if (data.length > 0 && !leftReport) setLeftReport(data[0]);
         if (data.length > 1 && !rightReport) setRightReport(data[1]);
       } catch (e) {
@@ -749,7 +761,6 @@ const App = () => {
     };
     fetchReports();
   }, []); // eslint-disable-line
-
   return (
     <div style={{ padding: "1rem" }}>
       <h1>PDF Label App (Two-Panel)</h1>
