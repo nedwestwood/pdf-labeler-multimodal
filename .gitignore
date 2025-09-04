@@ -3,3 +3,4 @@
 .DS_store
 /public/index.pdf
 /reports/
+/build/

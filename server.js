@@ -1,28 +1,34 @@
-// server.js
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
+const path = require('path');
+const fs = require('fs/promises');
+const express = require('express');
 
 const app = express();
-const REPORTS_DIR = path.join(__dirname, "reports");
+const REPORTS_DIR = path.join(__dirname, 'reports');
 
-// Serve the PDFs statically
-app.use("/reports", express.static(REPORTS_DIR));
-
-// List all PDFs in /reports
-app.get("/api/reports", (req, res) => {
-  fs.readdir(REPORTS_DIR, (err, files) => {
-    if (err) return res.status(500).json({ error: err.message });
-    const pdfs = files.filter(f => f.toLowerCase().endsWith(".pdf"));
-    res.json(pdfs);
-  });
+// API first
+app.get('/api/reports', async (_req, res) => {
+  try {
+    const files = await fs.readdir(REPORTS_DIR);
+    res.json(files.filter(f => f.toLowerCase().endsWith('.pdf')).sort());
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to list reports' });
+  }
 });
 
-// Health check (optional)
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
+// PDFs
+app.use('/reports', express.static(REPORTS_DIR, { fallthrough: false }));
+
+// Static UI
+const BUILD_DIR = path.join(__dirname, 'build');
+app.use(express.static(BUILD_DIR));
+
+// Express 5-safe SPA fallback (no wildcard pattern)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/reports')) return next();
+  if (req.method !== 'GET') return next();
+  res.sendFile(path.join(BUILD_DIR, 'index.html'));
+});
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Reports server running on http://localhost:${PORT}`);
-  console.log(`Place PDFs in: ${REPORTS_DIR}`);
-});
+app.listen(PORT, '0.0.0.0', () => console.log(`http://localhost:${PORT}`));
