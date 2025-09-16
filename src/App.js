@@ -74,6 +74,52 @@ const PdfPane = ({
     }
   });
 
+  // --- scaling controls ---
+  const [shrinkBy, setShrinkBy] = useState(0.9);   // e.g., 0.9 = shrink 10%
+  const [growBy, setGrowBy]     = useState(1.1);   // e.g., 1.1 = grow 10%
+  const [onlyCurrentPage, setOnlyCurrentPage] = useState(true);
+
+  // scales x/y/width/height proportionally; clamps to pane bounds
+  const applyScale = (factor) => {
+    if (!Number.isFinite(factor) || factor <= 0) return;
+
+    const { w: cw, h: ch } = getPaneSize(); // your helper already exists
+
+    setBoxes(prev =>
+      prev.map(b => {
+        // restrict to this report; optionally to current page
+        if (b.report !== report) return b;
+        if (onlyCurrentPage && b.page !== currentPage) return b;
+
+        const isFraction =
+          b.units === "fraction" ||
+          (b.x <= 1 && b.y <= 1 && b.width <= 1 && b.height <= 1);
+
+        let nx = b.x * factor;
+        let ny = b.y * factor;
+        let nw = b.width * factor;
+        let nh = b.height * factor;
+
+        if (isFraction) {
+          // clamp to [0,1] and make sure box stays in-bounds
+          nx = Math.max(0, Math.min(nx, 1));
+          ny = Math.max(0, Math.min(ny, 1));
+          nw = Math.max(0, Math.min(nw, 1 - nx));
+          nh = Math.max(0, Math.min(nh, 1 - ny));
+          return { ...b, x: nx, y: ny, width: nw, height: nh, units: "fraction" };
+        } else {
+          // pixel legacy boxes: clamp to current pane size
+          nx = Math.max(0, Math.min(nx, cw));
+          ny = Math.max(0, Math.min(ny, ch));
+          nw = Math.max(0, Math.min(nw, cw - nx));
+          nh = Math.max(0, Math.min(nh, ch - ny));
+          return { ...b, x: nx, y: ny, width: nw, height: nh };
+        }
+      })
+    );
+  };
+
+
   // link checkbox watcher
   const prevDup = useRef(!!formData.fields?.direct_duplicate);
   const prevExp = useRef(!!formData.fields?.expansion);
@@ -570,6 +616,58 @@ const PdfPane = ({
             style={{ display: "none" }}
           />
         </div>
+
+        {/* Scaling controls */}
+          <div
+            style={{
+              width: "100%",
+              marginTop: "0.5rem",
+              display: "flex",
+              gap: "0.5rem",
+              alignItems: "center",
+              flexWrap: "wrap"
+            }}
+          >
+            <label style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <input
+                type="checkbox"
+                checked={onlyCurrentPage}
+                onChange={e => setOnlyCurrentPage(e.target.checked)}
+              />
+              Only current page
+            </label>
+
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <span>Shrink ×</span>
+              <input
+                type="number"
+                step="0.05"
+                min="0.01"
+                value={shrinkBy}
+                onChange={(e) => setShrinkBy(parseFloat(e.target.value) || 0)}
+                style={{ width: 90 }}
+              />
+              <button type="button" onClick={() => applyScale(parseFloat(shrinkBy))}>
+                Apply
+              </button>
+            </div>
+
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <span>Grow ×</span>
+              <input
+                type="number"
+                step="0.05"
+                min="0.01"
+                value={growBy}
+                onChange={(e) => setGrowBy(parseFloat(e.target.value) || 0)}
+                style={{ width: 90 }}
+              />
+              <button type="button" onClick={() => applyScale(parseFloat(growBy))}>
+                Apply
+              </button>
+            </div>
+          </div>
+
       </div>
 
       {/* Viewer */}
