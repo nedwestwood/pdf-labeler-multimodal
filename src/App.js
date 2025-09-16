@@ -13,11 +13,9 @@ const parseDocNumber = (filename) => {
   return m ? m[1] : (filename?.replace(/\.pdf$/i, "") || "");
 };
 
-// NEW: link field keys used in categoryTree but handled at app level
 const LINK_FIELD_KEYS = ["direct_duplicate", "expansion"];
 const isLinkField = (k) => LINK_FIELD_KEYS.includes((k || "").toString().toLowerCase());
 
-// Filter link fields out of code-prefixed CSV columns
 const getAllCodePrefixedKeys = (categoryTree) => {
   const keys = new Set();
   Object.values(categoryTree).forEach(mesoMap => {
@@ -36,24 +34,23 @@ const getAllCodePrefixedKeys = (categoryTree) => {
 
 // ---------- Reusable PDF pane (one side) ----------
 const PdfPane = ({
-  side,                         // "left" | "right"
-  report,                       // filename selected (e.g. "A123.pdf")
-  setReport,                    // setter for dropdown changes
-  reportsList,                  // array of filenames
-  labelPrefix, setLabelPrefix,  // shared across panes (optional)
-  categoryTree, categoryColors, // provided by parent
+  side,
+  report,
+  setReport,
+  reportsList,
+  labelPrefix, setLabelPrefix,
+  categoryTree, categoryColors,
 
   // cross-pane linking props
-  onRequestLink,             // (side, "duplicate"|"expansion")
-  isPickMode,                // boolean: this pane is the TARGET to pick on
-  pickType,                  // "duplicate" | "expansion" | null
-  onPickTarget,              // ({ targetReport, targetBoxNumber })
-  onCancelPick,              // () => void
+  onRequestLink,
+  isPickMode,
+  pickType,
+  onPickTarget,
+  onCancelPick,
 
-  // pending link tokens for THIS pane (used when saving)
-  pendingLinkDuplicate,      // string like "12345#7"
-  pendingLinkExpansion,      // string like "67890#2"
-  onClearPendingLink         // (side, "duplicate"|"expansion")
+  pendingLinkDuplicate,
+  pendingLinkExpansion,
+  onClearPendingLink
 }) => {
   const [pdf, setPdf] = useState(null);
   const [pageImage, setPageImage] = useState(null);
@@ -77,7 +74,7 @@ const PdfPane = ({
     }
   });
 
-  // Watch the two link checkboxes and trigger pick-mode on the OTHER pane
+  // link checkbox watcher
   const prevDup = useRef(!!formData.fields?.direct_duplicate);
   const prevExp = useRef(!!formData.fields?.expansion);
 
@@ -85,13 +82,8 @@ const PdfPane = ({
     const dupNow = !!formData.fields?.direct_duplicate;
     const expNow = !!formData.fields?.expansion;
 
-    // only enter pick-mode when flipping ON and no token exists yet
-    if (!prevDup.current && dupNow && !pendingLinkDuplicate) {
-      onRequestLink?.(side, "duplicate");
-    }
-    if (!prevExp.current && expNow && !pendingLinkExpansion) {
-      onRequestLink?.(side, "expansion");
-    }
+    if (!prevDup.current && dupNow && !pendingLinkDuplicate) onRequestLink?.(side, "duplicate");
+    if (!prevExp.current && expNow && !pendingLinkExpansion) onRequestLink?.(side, "expansion");
 
     prevDup.current = dupNow;
     prevExp.current = expNow;
@@ -105,7 +97,6 @@ const PdfPane = ({
   ]);
 
   useEffect(() => {
-    // when report changes, load its saved boxes
     if (!storageKey) return;
     try {
       const saved = localStorage.getItem(storageKey);
@@ -118,7 +109,6 @@ const PdfPane = ({
   }, [storageKey]);
 
   useEffect(() => {
-    // persist per report
     if (!storageKey) return;
     localStorage.setItem(storageKey, JSON.stringify(boxes));
   }, [boxes, storageKey]);
@@ -156,10 +146,30 @@ const PdfPane = ({
   const [drawingBox, setDrawingBox] = useState(null);
   const containerRef = useRef(null);
   const startCoords = useRef(null);
+  const legacyInputRef = useRef(null);
+  const normalizedInputRef = useRef(null);
+  const imgRef = useRef(null);
+
+  // SAFE helper: no recursion, no state updates, consistent results
+  function getPaneSize() {
+    const img = imgRef.current;
+    if (img && img.clientWidth > 0 && img.clientHeight > 0) {
+      return { w: img.clientWidth, h: img.clientHeight };
+    }
+    const el = containerRef.current;
+    if (el) {
+      const r = el.getBoundingClientRect();
+      const w = Math.max(1, Math.floor(r.width || el.clientWidth || 0));
+      const h = Math.max(1, Math.floor(r.height || el.clientHeight || 0));
+      return { w, h };
+    }
+    return { w: 1, h: 1 };
+  }
 
   const handleMouseDown = (e) => {
-    if (isPickMode) return;            // 🔒 don't start drawing while picking
+    if (isPickMode) return;
     if (!containerRef.current) return;
+    // We still need offsets from the container rect for pointer math
     const bounds = containerRef.current.getBoundingClientRect();
     const x = e.clientX - bounds.left;
     const y = e.clientY - bounds.top;
@@ -168,7 +178,7 @@ const PdfPane = ({
   };
 
   const handleMouseMove = (e) => {
-    if (isPickMode) return;            // 🔒
+    if (isPickMode) return;
     if (!startCoords.current || !containerRef.current) return;
     const bounds = containerRef.current.getBoundingClientRect();
     const x = e.clientX - bounds.left;
@@ -184,7 +194,7 @@ const PdfPane = ({
   };
 
   const handleMouseUp = () => {
-    if (isPickMode) return;            // 🔒
+    if (isPickMode) return;
     if (drawingBox) {
       setPendingBox({ ...drawingBox, page: currentPage });
       setShowForm(true);
@@ -213,17 +223,23 @@ const PdfPane = ({
     const code = categoryTree[macro][meso][micro].code;
     const labelCode = labelPrefix ? `${labelPrefix}_${labelCount}` : `${labelCount}`;
 
-    // strip link fields from saved per-form fields
+    const { w: cw, h: ch } = getPaneSize();
+    const nx = (pendingBox?.x ?? 0) / cw;
+    const ny = (pendingBox?.y ?? 0) / ch;
+    const nw = (pendingBox?.width ?? 0) / cw;
+    const nh = (pendingBox?.height ?? 0) / ch;
+
     const filteredFields = Object.fromEntries(
       Object.entries(fields || {}).filter(([k]) => !isLinkField(k))
     );
 
     const newBox = {
-      ...pendingBox,
+      page: pendingBox?.page ?? currentPage,   // explicit page
+      x: nx, y: ny, width: nw, height: nh,    // normalized fractions
+      units: "fraction",
       boxNumber: labelCount,
       report,
       label: { macro, meso, micro, code, fields: filteredFields, labelCode },
-      // store link tokens (global CSV columns)
       links: {
         duplicate: pendingLinkDuplicate || "",
         expansion: pendingLinkExpansion || ""
@@ -234,7 +250,6 @@ const PdfPane = ({
     setLabelCount(c => c + 1);
     resetForm();
 
-    // optional: clear tokens after saving
     onClearPendingLink?.(side, "duplicate");
     onClearPendingLink?.(side, "expansion");
   };
@@ -268,10 +283,8 @@ const PdfPane = ({
           "Expansion":        links?.expansion || ""
         };
 
-        // initialize all per-form columns (excluding link fields)
         allFieldKeys.forEach(k => { row[k] = ""; });
 
-        // write form fields (skip link fields defensively)
         Object.entries(fields).forEach(([k, v]) => {
           if (isLinkField(k)) return;
           const fullKey = `${code}_${k}`;
@@ -293,10 +306,21 @@ const PdfPane = ({
   };
 
   const handleDownloadCoordsCSV = () => {
-    const coordRows = boxes.map(box => ({
-      report: report || "",
-      page: box.page, x: box.x, y: box.y, width: box.width, height: box.height, boxNumber: box.boxNumber
-    }));
+    const coordRows = boxes.map(box => {
+      const isFraction = box.units === "fraction" || (box.x <= 1 && box.y <= 1 && box.width <= 1 && box.height <= 1);
+      const { w: cw, h: ch } = getPaneSize();
+      const nx = isFraction ? box.x : (box.x / cw);
+      const ny = isFraction ? box.y : (box.y / ch);
+      const nw = isFraction ? box.width : (box.width / cw);
+      const nh = isFraction ? box.height : (box.height / ch);
+      return {
+        report: report || "",
+        page: box.page,
+        x_norm: nx, y_norm: ny, width_norm: nw, height_norm: nh,
+        units: "fraction",
+        boxNumber: box.boxNumber
+      };
+    });
     const csv = Papa.unparse(coordRows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -308,30 +332,37 @@ const PdfPane = ({
     document.body.removeChild(link);
   };
 
+  // (Old pixel loader kept for compatibility; normalizes on import)
   const handleLoadPreviousBoxes = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     Papa.parse(file, {
       header: true,
       complete: (results) => {
+        const { w: cw, h: ch } = getPaneSize();
         const importedBoxes = (results.data || []).map((row, idx) => {
           const x = parseFloat(row.x);
           const y = parseFloat(row.y);
           const width = parseFloat(row.width);
           const height = parseFloat(row.height);
-          const page = parseInt(row.page);
+          let page = parseInt(row.page);
+          if (Number.isNaN(page) || page <= 0) page = currentPage;
+
           let boxNumber = parseInt(row.boxNumber);
           if (Number.isNaN(boxNumber)) {
             const existing = Array.isArray(boxes) ? boxes.length : 0;
-            boxNumber = existing + idx + 1; // fallback numbering if missing
+            boxNumber = existing + idx + 1;
           }
+          if ([x,y,width,height].some(Number.isNaN)) return null;
           return {
-            x, y, width, height, page,
+            x: x / cw, y: y / ch, width: width / cw, height: height / ch,
+            units: "fraction",
+            page,
             boxNumber,
             previous: true,
             report: report || row.report || ""
           };
-        }).filter(b => !Number.isNaN(b.x) && !Number.isNaN(b.y));
+        }).filter(Boolean);
         setBoxes(prev => [...prev, ...importedBoxes]);
       }
     });
@@ -345,6 +376,101 @@ const PdfPane = ({
       if (storageKey) localStorage.removeItem(storageKey);
       setLabelCount(1);
     }
+  };
+
+  const handleUploadLegacyPixelsCSV = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const doConvert = (rows, attempt = 0) => {
+      const { w: cw, h: ch } = getPaneSize();
+
+      if ((cw < 10 || ch < 10) && attempt < 10) {
+        setTimeout(() => doConvert(rows, attempt + 1), 60);
+        return;
+      }
+
+      const imported = rows.map((row, idx) => {
+        const px = parseFloat(row.x);
+        const py = parseFloat(row.y);
+        const pw = parseFloat(row.width);
+        const ph = parseFloat(row.height);
+
+        if ([px, py, pw, ph].some(Number.isNaN)) return null;
+
+        const nx = cw ? px / cw : 0;
+        const ny = ch ? py / ch : 0;
+        const nw = cw ? pw / cw : 0;
+        const nh = ch ? ph / ch : 0;
+
+        let page = parseInt(row.page);
+        if (Number.isNaN(page) || page <= 0) page = currentPage;
+
+        let boxNumber = parseInt(row.boxNumber);
+        if (Number.isNaN(boxNumber)) boxNumber = (boxes?.length || 0) + idx + 1;
+
+        return {
+          x: nx, y: ny, width: nw, height: nh,
+          units: "fraction",
+          page,
+          previous: true,
+          boxNumber,
+          report: report || row.report || "",
+        };
+      }).filter(Boolean);
+
+      setBoxes((prev) => [...prev, ...imported]);
+    };
+
+    Papa.parse(file, {
+      header: true,
+      complete: (results) => {
+        const rows = (results.data || []).filter(Boolean);
+        doConvert(rows);
+      },
+    });
+
+    e.target.value = "";
+  };
+
+  const handleUploadNormalizedCSV = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    Papa.parse(file, {
+      header: true,
+      complete: (results) => {
+        const imported = (results.data || []).map((row, idx) => {
+          let nx = parseFloat(row.x_norm);
+          let ny = parseFloat(row.y_norm);
+          let nw = parseFloat(row.width_norm);
+          let nh = parseFloat(row.height_norm);
+          if ([nx,ny,nw,nh].some(Number.isNaN)) {
+            const lx = parseFloat(row.x);
+            const ly = parseFloat(row.y);
+            const lw = parseFloat(row.width);
+            const lh = parseFloat(row.height);
+            if (![lx,ly,lw,lh].some(Number.isNaN) && lx <= 1 && ly <= 1 && lw <= 1 && lh <= 1) {
+              nx = lx; ny = ly; nw = lw; nh = lh;
+            }
+          }
+          if ([nx,ny,nw,nh].some(Number.isNaN)) return null;
+          let page = parseInt(row.page);
+          if (Number.isNaN(page) || page <= 0) page = currentPage;
+          let boxNumber = parseInt(row.boxNumber);
+          if (Number.isNaN(boxNumber)) boxNumber = (boxes?.length || 0) + idx + 1;
+          return {
+            x: nx, y: ny, width: nw, height: nh,
+            units: "fraction",
+            page,
+            previous: true,
+            boxNumber,
+            report: report || row.report || ""
+          };
+        }).filter(Boolean);
+        setBoxes(prev => [...prev, ...imported]);
+      }
+    });
+    e.target.value = "";
   };
 
   return (
@@ -414,10 +540,36 @@ const PdfPane = ({
         <button onClick={handleDownloadCoordsCSV} disabled={!report}>Download Coords</button>
         <button onClick={handleClearCurrentReport} disabled={!report}>Clear Boxes (this report)</button>
 
-        <label style={{ marginLeft: "auto" }}>
-          Load previous boxes (CSV):
-          <input type="file" accept=".csv" onChange={handleLoadPreviousBoxes} style={{ marginLeft: "0.5rem" }} />
-        </label>
+        {/* Upload buttons on their own row */}
+        <div style={{
+          width: "100%",
+          marginTop: "0.5rem",
+          display: "flex",
+          gap: "0.5rem",
+          flexWrap: "wrap"
+        }}>
+          <button type="button" onClick={() => legacyInputRef.current?.click()}>
+            Upload LEGACY pixels CSV
+          </button>
+          <input
+            ref={legacyInputRef}
+            type="file"
+            accept=".csv"
+            onChange={handleUploadLegacyPixelsCSV}
+            style={{ display: "none" }}
+          />
+
+          <button type="button" onClick={() => normalizedInputRef.current?.click()}>
+            Upload NORMALIZED CSV
+          </button>
+          <input
+            ref={normalizedInputRef}
+            type="file"
+            accept=".csv"
+            onChange={handleUploadNormalizedCSV}
+            style={{ display: "none" }}
+          />
+        </div>
       </div>
 
       {/* Viewer */}
@@ -431,6 +583,7 @@ const PdfPane = ({
           style={{ position: "relative", display: "inline-block", userSelect: "none" }}
         >
           <img
+            ref={imgRef}
             src={pageImage}
             alt={`Page ${currentPage} - ${report}`}
             style={{ display: "block", pointerEvents: "none", maxWidth: "100%" }}
@@ -438,17 +591,24 @@ const PdfPane = ({
 
           {/* Existing boxes for this page */}
           {boxes.filter(b => b.page === currentPage).map((box, idx) => {
+            if (![box.x, box.y, box.width, box.height].every(Number.isFinite)) return null;
+
             const isPrevious = box.previous;
             const macro = box.label?.macro;
             const color = isPrevious ? "gray" : (categoryColors[macro] || "black");
 
+            const { w: cw, h: ch } = getPaneSize();
+            const isFraction = box.units === "fraction" || (box.x <= 1 && box.y <= 1 && box.width <= 1 && box.height <= 1);
+            const leftPct   = isFraction ? (box.x * 100)       : ((box.x / cw) * 100);
+            const topPct    = isFraction ? (box.y * 100)       : ((box.y / ch) * 100);
+            const widthPct  = isFraction ? (box.width * 100)   : ((box.width / cw) * 100);
+            const heightPct = isFraction ? (box.height * 100)  : ((box.height / ch) * 100);
+
             const handleBoxClick = () => {
               if (isPickMode) {
-                // 🎯 while picking, ANY box click selects the target (no form opens)
                 onPickTarget?.({ targetReport: report, targetBoxNumber: box.boxNumber });
                 return;
               }
-              // Normal behavior only when NOT picking
               if (isPrevious) {
                 setPendingBox({ ...box, label: undefined });
                 setFormData({ macro: "", meso: "", micro: "", fields: {} });
@@ -462,10 +622,11 @@ const PdfPane = ({
                   onClick={handleBoxClick}
                   style={{
                     position: "absolute",
-                    left: box.x,
-                    top: box.y,
-                    width: box.width,
-                    height: box.height,
+                    zIndex: 2,
+                    left: `${leftPct}%`,
+                    top: `${topPct}%`,
+                    width: `${widthPct}%`,
+                    height: `${heightPct}%`,
                     border: `2px ${isPrevious ? "dotted" : "solid"} ${color}`,
                     cursor: isPickMode ? "crosshair" : (isPrevious ? "pointer" : "default"),
                     backgroundColor: isPrevious ? "rgba(100,100,100,0.05)" : "transparent",
@@ -483,8 +644,9 @@ const PdfPane = ({
                   <div
                     style={{
                       position: "absolute",
-                      left: box.x + box.width - 14,
-                      top: box.y - 2,
+                      zIndex: 3,
+                      left: `calc(${leftPct}% + ${widthPct}% - 14px)`,
+                      top: `calc(${topPct}% - 2px)`,
                       fontSize: 12,
                       background: "white",
                       color: "black",
@@ -506,6 +668,7 @@ const PdfPane = ({
             <div
               style={{
                 position: "absolute",
+                zIndex: 4,
                 left: drawingBox.x,
                 top: drawingBox.y,
                 width: drawingBox.width,
@@ -549,7 +712,6 @@ const PdfPane = ({
             </select>
           )}
 
-          {/* APP-LEVEL LINK CHECKBOXES (drive pick-mode, not saved as code-prefixed fields) */}
           {(formData.macro && formData.meso && formData.micro) && (
             <div style={{ margin: "0.5rem 0", padding: "0.5rem", border: "1px dashed #ddd", borderRadius: 6 }}>
               <label style={{ display: "inline-flex", alignItems: "center", gap: 6, marginRight: 16 }}>
@@ -603,7 +765,7 @@ const PdfPane = ({
           {formData.macro && formData.meso && formData.micro && (
             <div className="dynamic-fields" style={{ marginTop: "0.5rem" }}>
               {categoryTree[formData.macro][formData.meso][formData.micro].form
-                .filter(f => !isLinkField(f.key)) // HIDE app-level link fields
+                .filter(f => !isLinkField(f.key))
                 .map(f => (
                   <div key={f.key} style={{ marginBottom: "0.4rem" }}>
                     <label>
@@ -688,24 +850,19 @@ const App = () => {
   const [rightReport, setRightReport] = useState(null);
   const [labelPrefix, setLabelPrefix] = useState("");
 
-  // global pick mode request
   const [linkingRequest, setLinkingRequest] = useState(null);
-  // shape: { requesterSide: "left"|"right", type: "duplicate"|"expansion" }
 
-  // pending link tokens per pane
   const [pendingLinks, setPendingLinks] = useState({
     left:   { duplicate: "", expansion: "" },
     right:  { duplicate: "", expansion: "" }
   });
 
-  // When a pane ticks a checkbox -> request pick mode
   const handleRequestLink = (requesterSide, type) => {
     setLinkingRequest({ requesterSide, type });
   };
 
-  // Target pane clicked a box while in pick mode
   const handlePickTarget = ({ targetReport, targetBoxNumber }) => {
-    if (!linkingRequest) return; // safety
+    if (!linkingRequest) return;
     const { requesterSide, type } = linkingRequest;
     const docNumber = parseDocNumber(targetReport);
     const token = `${docNumber}#${targetBoxNumber}`;
@@ -718,10 +875,9 @@ const App = () => {
       }
     }));
 
-    setLinkingRequest(null); // exit pick mode
+    setLinkingRequest(null);
   };
 
-  // Allow either pane to clear its pending link token
   const handleClearPendingLink = (side, type) => {
     setPendingLinks(prev => ({
       ...prev,
@@ -734,7 +890,6 @@ const App = () => {
 
   const cancelPickMode = () => setLinkingRequest(null);
 
-  // fetch list of files once
   useEffect(() => {
     const fetchReports = async () => {
       try {
